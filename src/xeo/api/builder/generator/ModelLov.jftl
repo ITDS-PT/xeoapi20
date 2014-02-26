@@ -1,0 +1,61 @@
+package ${root.javaPackage};
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
+import netgest.bo.lovmanager.LovManager;
+import netgest.bo.lovmanager.lovObject;
+import netgest.bo.runtime.boRuntimeException;
+import xeo.api.base.XEOLovPair;
+import xeo.api.base.exceptions.XEORuntimeException;
+import xeo.api.base.impl.XEOLovImpl;
+import xeo.api.base.impl.XEOScopeImpl;
+import xeo.api.base.XEOModelBase;
+import netgest.utils.StringUtils;
+
+public class ${root.javaClassName} extends XEOLovImpl implements XEOLovPair<String> {
+	
+	private static final Map<String,${root.javaClassName}>   ITEMS = new HashMap<String, ${root.javaClassName}>();
+	
+	public static final String LOV_NAME = "${root.name}";
+	<#list root.getItems() as item>
+	public static final ${root.javaClassName} ${item.javaStaticName} = new ${root.javaClassName}( "${item.value}", "${item.label}");
+	</#list>
+	
+	
+	private ${root.javaClassName}( String value, String label ) {
+		super(value, label);
+		ITEMS.put( value, this );
+	}
+	
+	public static ${root.javaClassName} valueOf( XEOModelBase model, String value ) {
+		${root.javaClassName} item = ITEMS.get( value );
+		if( item == null ) {
+			try {
+				lovObject lovObject = LovManager.getLovObject( ((XEOScopeImpl)model.scope()).getEboContext() , LOV_NAME );
+				if( lovObject != null ) {
+					synchronized ( lovObject ) {
+						if( lovObject.findLovItemByCode( value ) ) {
+							item = new ${root.javaClassName}( value, lovObject.getDescription() );
+						}
+						if( !StringUtils.isEmpty( value ) ) {
+							item = new ${root.javaClassName}( value, value );
+						}
+					}
+				}
+			} catch (boRuntimeException e) {
+				throw new XEORuntimeException( e.getMessage(), e);
+			}
+		}
+		return item;
+	}
+	
+	public static Iterable<${root.javaClassName}> values() {
+		return Collections.unmodifiableMap(ITEMS).values();
+	}
+	
+	public String toString() {
+		return this.getValue() + ":" + this.getLabel();
+	}
+}

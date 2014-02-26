@@ -1,0 +1,16 @@
+package ${root.javaPackage};
+
+import ${root.javaBasePackage}.${root.javaClassName}Base;
+<#list root.getJavaImports() as import >import ${import};
+</#list>
+
+/**
+* ${root.description}
+*/
+public <#if root.modelType="ABSTRACT_MODEL">abstract </#if>class ${root.javaClassName} extends ${root.javaClassName}Base {
+	
+	public static final String MODEL_NAME = "${root.modelName}";
+	
+	public static class Names extends ${root.javaClassName}Base.Names {};
+
+}

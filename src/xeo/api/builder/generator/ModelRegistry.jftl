@@ -1,0 +1,7 @@
+package xeo.models;
+
+public class XEOModelFactories {
+<#list root as model><#if model.modelType="MODEL">
+	public static final Class<${model.javaPackage}.${model.javaClassName}Factory>  ${model.javaClassName}Factory = ${model.javaPackage}.${model.javaClassName}Factory.class;
+</#if></#list>
+}

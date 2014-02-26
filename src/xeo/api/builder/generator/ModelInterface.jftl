@@ -1,0 +1,65 @@
+package ${root.javaPackage};
+
+<#list root.getJavaBaseImports() as import >
+import ${import};
+</#list>
+
+public interface ${root.javaClassName} extends ${root.super.javaClassName}  
+{
+
+		// Static FIELDS
+	public static class Names <#if root.modelName != "boObject">extends ${root.super.javaClassName}.Names</#if> {
+		// Simple Attributes
+	<#list root.getAttributes() as attribute>
+		public static final String ${attribute.javaStaticFieldName} = "${attribute.modelName}";
+	</#list>
+		
+		// Object Attributes
+	<#list root.getAttributesObject() as attributeObject>
+		public static final String ${attributeObject.javaStaticFieldName} = "${attributeObject.modelName}";
+	</#list>
+		
+		// Object Collections
+	<#list root.getBridges() as bridge>
+		public static final String ${bridge.javaStaticFieldName} = "${bridge.modelName}";
+	</#list>
+	}
+	
+	public enum NamesEnum {
+		// Simple Attributes
+	<#assign appendComma=false>
+	<#list root.getAttributes() as attribute>
+		<#if appendComma>,</#if>${attribute.javaStaticFieldName}<#assign appendComma=true>
+	</#list>
+		
+		// Object Attributes
+	<#list root.getAttributesObject() as attributeObject>
+		<#if appendComma>,</#if>${attributeObject.javaStaticFieldName}<#assign appendComma=true>
+	</#list>
+		
+		// Object Collections
+	<#list root.getBridges() as bridge>
+		<#if appendComma>,</#if>${bridge.javaStaticFieldName}<#assign appendComma=true>
+	</#list>
+	}
+
+<#list root.getAttributes() as attribute>
+	public ${attribute.javaValueClass} get${attribute.javaGetterSetterName}();
+<#if attribute.generateSetter>
+	public void set${attribute.javaGetterSetterName}( ${attribute.javaValueClass} ${attribute.javaFieldName}Value );
+</#if>	
+</#list>
+
+<#list root.getAttributesObject() as attribute>
+	public ${attribute.referencedModel.javaClassName} get${attribute.javaGetterSetterName}();
+<#if attribute.generateSetter>
+	public void set${attribute.javaGetterSetterName}( ${attribute.referencedModel.javaClassName} ${attribute.javaFieldName}Value );
+</#if>	
+</#list>
+
+<#list root.getBridges() as bridge>
+	public XEOAttributeCollection<${bridge.referencedModel.javaClassName}> get${bridge.javaGetterSetterName}();
+	
+</#list>
+
+}

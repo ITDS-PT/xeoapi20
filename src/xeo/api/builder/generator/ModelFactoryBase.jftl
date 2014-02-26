@@ -1,0 +1,44 @@
+package ${root.javaBasePackage};
+
+import netgest.bo.runtime.boObject;
+import xeo.api.base.impl.XEOModelFactoryImpl;
+import ${root.javaPackage}.${root.javaClassName};
+import ${root.javaPackage}.${root.javaClassName}Factory;
+<#list root.getJavaBaseImports() as import >
+import ${import};
+</#list>
+
+
+@SuppressWarnings("unused")
+public abstract class ${root.javaClassName}FactoryBase<T extends ${root.javaClassName}> extends XEOModelFactoryImpl<T>
+{
+
+	private static final String MODEL_NAME="${root.modelName}";
+	<#if root.modelType="MODEL">
+	protected static ${root.javaClassName}Factory modelFactory;
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	protected T instatiateWrapper(Long boui) {
+		${root.javaClassName} model = new ${root.javaClassName}();
+		
+		((${root.javaClassName}Base)model).setFactory( this );
+		
+		return (T)model;
+	}
+
+	@Override
+	protected String getModelName() {
+		return MODEL_NAME;
+	}
+
+<#--
+	public static ${root.javaClassName}FactoryBase<${root.javaClassName}> getInstance() {
+		if( modelFactory == null ) {
+			modelFactory = new ${root.javaClassName}Factory();
+		}
+		return modelFactory;
+	}
+-->
+	</#if>
+}

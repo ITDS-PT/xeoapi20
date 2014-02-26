@@ -1,0 +1,423 @@
+package ${root.javaBasePackage};
+
+<#if (root.getAllAttributes()?size > 0) >import org.json.JSONObject;</#if>
+import java.lang.ref.WeakReference;
+import netgest.bo.runtime.boObject;
+import xeo.api.base.*;
+import xeo.api.base.impl.*;
+<#-->//import ${root.javaPackage}.${root.javaClassName};
+//import netgest.bo.runtime.boBridgeRow;-->
+
+<#list root.getJavaBaseImports() as importPackage>
+import ${importPackage};
+</#list>
+
+<#assign appendComma=false><#assign firstElement=true>
+@SuppressWarnings(value="all")
+public abstract class ${root.javaClassName}Base extends ${root.super.javaClassName} <#list root.implementedInterfaces as interface><#if firstElement>implements </#if><#if appendComma>, </#if>${interface.javaClassName}<#assign appendComma=true><#assign firstElement=false></#list>
+{
+	
+	private Attributes attributes = new Attributes();
+
+	// Static FIELDS
+	public static class Names <#if root.modelName != "boObject">extends ${root.super.javaClassName}.Names</#if> {
+		// Simple Attributes
+	<#list root.getAttributes() as attribute> 
+		public static final String ${attribute.javaStaticFieldName} = "${attribute.modelName}";
+	</#list>
+		
+		// Object Attributes
+	<#list root.getAttributesObject() as attributeObject>
+		public static final String ${attributeObject.javaStaticFieldName} = "${attributeObject.modelName}";
+	</#list>
+		
+		// Object Collections
+	<#list root.getBridges() as bridge>
+		public static final String ${bridge.javaStaticFieldName} = "${bridge.modelName}";
+	</#list>
+	
+	
+		<#assign appendComma=false>
+		public enum Enum {
+		<#list root.getAllAttributes() as attribute><#if appendComma>,</#if>
+			${attribute.modelName}<#assign appendComma=true></#list>
+		<#list root.getInheritedAttributes() as attribute><#if appendComma>,</#if>
+			${attribute.modelName}<#assign appendComma=true></#list>
+		}
+	
+	}
+
+	// Class to having all attributes handlers
+	public class Attributes extends ${root.super.javaClassName}.Attributes {
+		// Simple Attributes
+	<#list root.getAttributes() as attribute>
+		/**
+		* Retrieves the Handler of ${attribute.modelName}
+		* ${attribute.description}
+		* @return the handler of the attribute ${attribute.modelName}
+		*/
+	<#if !attribute.javaInterfaceIsGeneric>
+		public ${attribute.javaInterfaceName} get${attribute.javaGetterSetterName}() {
+			init_${attribute.javaGetterSetterName}();
+			return _${attribute.javaFieldName};
+		}
+	<#else>
+		public ${attribute.javaInterfaceName}<${attribute.javaValueClass}> get${attribute.javaGetterSetterName}() {
+			init_${attribute.javaGetterSetterName}();
+			return _${attribute.javaFieldName};
+		}
+	</#if>
+
+	</#list>
+	<#list root.getAttributesObject() as attribute>
+		/**
+		* Retrieves the Handler of ${attribute.modelName}
+		* ${attribute.description}
+		* @return the handler of the attribute ${attribute.modelName}
+		*/
+		// Object Attributes
+		<#if !attribute.final>@SuppressWarnings(value="all")</#if>
+		public <#if !attribute.final><T extends ${attribute.referencedModel.javaClassName}></#if> XEOAttributeObject<<#if !attribute.final>T<#else>${attribute.referencedModel.javaClassName}</#if>> get${attribute.javaAttributeGetterName}() 
+		{
+			init_${attribute.javaGetterSetterName}();
+			return <#if !attribute.final>(XEOAttributeObject<T>)</#if>_${attribute.javaFieldName};
+		}
+
+	</#list>
+		// Object Collections Attributes
+	<#list root.getBridges() as bridge>
+		/**
+		* Retrieves the Handler of ${bridge.modelName}
+		* ${bridge.description}
+		* @return the handler of the attribute ${bridge.modelName}
+		*/
+		// Object Attributes
+		public XEOAttributeCollection<${bridge.referencedModel.javaClassName}> get${bridge.javaGetterSetterName}() {
+			return ${root.javaClassName}Base.this.get${bridge.javaGetterSetterName}(); 
+		}
+	</#list>
+	
+	}
+	
+	// Simple Attributes
+<#list root.getAttributes() as attribute>
+	<#if !attribute.javaClassIsGeneric >
+	private ${attribute.javaClassName} _${attribute.javaFieldName};
+	<#else>
+	private ${attribute.javaClassName}<${attribute.javaValueClass}> _${attribute.javaFieldName};
+	</#if>
+</#list>
+	
+	// Object Attributes
+<#list root.getAttributesObject() as attributeObject>
+	private XEOAttributeObject<${attributeObject.referencedModel.javaClassName}> _${attributeObject.javaFieldName};
+</#list>
+	
+	// Object Collections
+<#list root.getBridges() as bridge>
+	private XEOAttributeCollection<${bridge.referencedModel.javaClassName}> _${bridge.javaFieldName};
+</#list>
+
+<#list root.getAttributes() as attribute><#if attribute.modelName != "BOUI">
+	/**
+	* Retrieves the value of ${attribute.modelName}
+	* ${attribute.description}
+	* @return the current value of the attribute ${attribute.modelName}
+	*/
+	public ${attribute.javaValueClass} get${attribute.javaGetterSetterName}() {
+		init_${attribute.javaGetterSetterName}();
+		return _${attribute.javaFieldName}.getValue();
+	}
+	
+	<#if attribute.generateSetter>
+	/**
+	* Set the value of ${attribute.modelName}
+	* ${attribute.description}
+	* @param ${attribute.javaFieldName}Value set the value of the attribute ${attribute.modelName}
+	*/
+	public void set${attribute.javaGetterSetterName}( ${attribute.javaValueClass} ${attribute.javaFieldName}Value ) {
+		init_${attribute.javaGetterSetterName}();
+		_${attribute.javaFieldName}.setValue( ${attribute.javaFieldName}Value );
+	}
+	
+	<#if attribute.javaClassName = "XEOAttributeFileImpl">
+	/**
+	* Set the value of ${attribute.modelName}
+	* ${attribute.description}
+	* @param ${attribute.javaFieldName}Value set the value of the attribute ${attribute.modelName}
+	*/
+	public void set${attribute.javaGetterSetterName}( java.io.File ${attribute.javaFieldName}Value ) {
+		init_${attribute.javaGetterSetterName}();
+		_${attribute.javaFieldName}.setValue( ${attribute.javaFieldName}Value );
+	}
+	</#if>
+	
+	</#if>
+</#if></#list>
+
+<#list root.getAttributesObject() as attribute>
+
+	/**
+	* Retrieves the value of ${attribute.modelName}
+	* ${attribute.description}
+	* @return the current value of the attribute ${attribute.modelName}
+	*/
+	public ${attribute.referencedModel.javaClassName} get${attribute.javaGetterSetterName}() {
+		init_${attribute.javaGetterSetterName}();
+		return _${attribute.javaFieldName}.getValue();
+	}
+	
+	/**
+	* Set the value of ${attribute.modelName}
+	* ${attribute.description}
+	* @param ${attribute.javaFieldName}Value set the value of the attribute ${attribute.modelName}
+	*/
+	public void set${attribute.javaGetterSetterName}( ${attribute.referencedModel.javaClassName} ${attribute.javaFieldName}Value ) {
+		init_${attribute.javaGetterSetterName}();
+		_${attribute.javaFieldName}.setValue( ${attribute.javaFieldName}Value );
+	}
+	
+</#list>
+
+
+<#list root.getBridges() as bridge>
+	/**
+	* Retrieves the collection of ${bridge.modelName}
+	* ${bridge.description}
+	* @return the collection of ${bridge.modelName}
+	*/
+	@SuppressWarnings("unchecked")
+	public XEOAttributeCollection<${bridge.referencedModel.javaClassName}> get${bridge.javaGetterSetterName}() {
+		if( _${bridge.javaFieldName} == null ) {
+			_${bridge.javaFieldName} = (XEOAttributeCollection<${bridge.referencedModel.javaClassName}>)attributeCollectionFactory( Names.${bridge.javaStaticFieldName} );
+		}
+		return _${bridge.javaFieldName};
+	}
+</#list>
+
+<#-- // Initialize Attributes --> 
+<#list root.getAttributes() as attribute>
+	<#if attribute.javaClassIsGeneric >@SuppressWarnings("unchecked")</#if>
+	private void init_${attribute.javaGetterSetterName}() {
+		inititalizeBoObject();
+		if( _${attribute.javaFieldName} == null ) {
+			<#if !attribute.javaClassIsGeneric >
+				_${attribute.javaFieldName} = (${attribute.javaClassName})attributeFactory( Names.${attribute.javaStaticFieldName} );
+			<#else>
+				_${attribute.javaFieldName} = (${attribute.javaClassName}<${attribute.javaValueClass}>)attributeFactory( Names.${attribute.javaStaticFieldName} );
+			</#if>
+		}
+	}
+</#list>
+
+<#list root.getAttributesObject() as attribute>
+	@SuppressWarnings("unchecked")
+	private void init_${attribute.javaGetterSetterName}() {
+		inititalizeBoObject();
+		if( _${attribute.javaFieldName} == null ) {
+			_${attribute.javaFieldName} = (XEOAttributeObject<${attribute.referencedModel.javaClassName}>)attributeObjectFactory( Names.${attribute.javaStaticFieldName} );
+		}
+	}
+</#list>
+
+	
+	@Override
+	protected XEOAttribute<?> attributeFactory( String attributeName ) {
+		<#list root.getAttributes() as attribute>
+		if( Names.${attribute.javaStaticFieldName}.equals( attributeName ) )
+			<#if attribute.javaClassName = "XEOAttributeDecimalImpl">
+				return new XEOAttributeDecimalImpl(
+								this, 
+								boobject.get().getAttribute( attributeName ),
+								${attribute.minPrecision},
+								${attribute.maxPrecision}
+							);
+			<#elseif attribute.javaClassName = "XEOAttributeFileImpl">
+				return new XEOAttributeFileImpl(
+								this, 
+								boobject.get().getAttribute( attributeName )
+							);
+			<#else>
+				return new ${attribute.javaClassName}<#if attribute.javaClassIsGeneric><${attribute.javaValueClass}></#if>(
+						${attribute.javaValueClass}.class,
+						${attribute.javaModelValueClass}.class,
+						this, 
+						boobject.get().getAttribute( attributeName ) 
+				);
+			</#if>
+		</#list>
+		return super.attributeFactory( attributeName );
+	}
+	
+	@Override
+	protected XEOAttributeObject<?> attributeObjectFactory( String attributeName ) {
+		// Object Attributes fields
+		<#list root.getAttributesObject() as attribute>
+		if( Names.${attribute.javaStaticFieldName}.equals( attributeName ) )
+			return new XEOAttributeObjectImpl<${attribute.referencedModel.javaClassName}>( this, boobject.get().getAttribute( attributeName ) );
+		</#list>
+
+		return super.attributeObjectFactory( attributeName );
+	}
+
+	@Override
+	protected XEOAttributeCollection<?> attributeCollectionFactory( String collectionName ) {
+		// Object Attributes fields
+		<#list root.getBridges() as bridge>
+		if( Names.${bridge.javaStaticFieldName}.equals( collectionName ) )
+			return new XEOAttributeCollectionImpl<${bridge.referencedModel.javaClassName}>( this, collectionName );
+		</#list>
+
+		return super.attributeCollectionFactory( collectionName );
+	}
+	
+	
+	public Attributes attributes() {
+		return attributes;
+	}
+	
+	public XEOAttribute<?> attributes( String name ) {
+	<#list root.getAttributes() as attribute>
+		if( Names.${attribute.javaStaticFieldName}.equals( name ) ) 
+			return attributes.get${attribute.javaGetterSetterName}();
+	</#list>
+		
+		// Object Attributes
+	<#list root.getAttributesObject() as attributeObject>
+		if( Names.${attributeObject.javaStaticFieldName}.equals( name ) ) 
+			return attributes.get${attributeObject.javaGetterSetterName}();
+	</#list>
+		
+		// Object Collections
+	<#list root.getBridges() as bridge>
+		if( Names.${bridge.javaStaticFieldName}.equals( name ) ) 
+			return attributes.get${bridge.javaGetterSetterName}();
+	</#list>
+		
+		return super.attributes( name );
+	}
+	
+	// Specific attribute Handlers and extra setters
+<#list root.getAttributesObject() as attribute>
+	<#if attribute.generateJavaClass >
+		<#list attribute.getTypedReferences() as typedReference>
+		/**
+		* Set the value of ${attribute.modelName}
+		* ${attribute.description}
+		* @param ${attribute.javaFieldName}Value set the value of the attribute ${attribute.modelName}
+		*/
+		public void set${attribute.javaGetterSetterName}( ${typedReference.javaClassName} ${attribute.javaFieldName}Value ) {
+			init_${attribute.javaGetterSetterName}();
+			_${attribute.javaFieldName}.setValue( ${attribute.javaFieldName}Value );
+		}
+		</#list>
+	</#if>
+</#list>
+
+<#--
+	Bridges Models
+<#list root.getBridges() as bridge>
+	<#if bridge.generateJavaClass >
+	// Bridges Models for  ${bridge.modelName}
+	public class ${bridge.javaGetterSetterName} extends XEOModelBridgeImpl {
+	
+		public ${bridge.javaGetterSetterName}(boBridgeRow bridgeRow) {
+			super(bridgeRow);
+		}
+	
+		@Override
+		public ${root.javaClassName} getParent() {
+			return null;
+		}
+	
+		@Override
+		public ${bridge.referencedModel.javaClassName} getChild() {
+			return null;
+		}
+		
+	}
+	</#if>
+</#list>
+-->
+
+	public XEOAttribute<?> attributes( Names.Enum attributeName ) {
+		return attributes( attributeName.name() );
+	}
+
+
+	@SuppressWarnings(value="all")
+	void setFactory( XEOModelFactoryImpl<? extends XEOModelBase> factory) {
+		super.factory = factory;
+	}
+
+	protected void wrapObject( boObject boobject ) {
+		this.boobject = new WeakReference<boObject>( boobject );
+	}
+	
+	<#if (root.getAllAttributes()?size > 0) >
+	@Override
+	protected JSONObject toJSONObject() {
+		
+		JSONObject jsonObject = super.toJSONObject();
+		try {
+			JSONObject jsonAttributes = jsonObject.getJSONObject("attributes");  
+			<#list root.getAttributes() as attribute>
+			jsonAttributes.put( attributes().get${attribute.javaGetterSetterName}().getName(), String.valueOf( get${attribute.javaGetterSetterName}() ) );
+			</#list> 
+			<#list root.getAttributesObject() as attribute>
+			jsonAttributes.put( attributes().get${attribute.javaGetterSetterName}().getName(), get${attribute.javaGetterSetterName}().cardId() );
+			</#list>
+		}
+		catch( Exception e ) {}; 
+		
+		return jsonObject;
+			
+	}
+	</#if>
+	
+	<#list root.getAttributes() as attribute>
+	<#if attribute.generateJavaClass >
+	public class ${attribute.javaClassName} extends XEOAttributeImpl<${attribute.javaValueClass}> {
+		
+		public ${attribute.javaClassName}(Class<?> classValue, Class<?> modelValueClass, XEOModelImpl model, AttributeHandler attributeHandler) {
+			super(Object.class, Object.class, model, attributeHandler);
+		}
+		
+		@Override
+		public ${attribute.javaValueClass} getValue() {
+			try {
+				Object value = attributeHandler.getValueObject();
+				if( value == null ) {
+					return null;
+				}
+				return ${attribute.javaLovClassName}.valueOf( ${root.javaClassName}Base.this, String.valueOf(value) );
+			} catch (boRuntimeException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		
+		public void setValue(${attribute.javaValueClass} value) {
+			try {
+				attributeHandler.setValueString( value==null?null:value.getValue() );
+			} catch (boRuntimeException e) {
+				throw new RuntimeException( e );
+			}
+		}
+		
+		@Override
+		public ${attribute.javaValueClass} getPersistedValue() {
+			Object value = getFlashbackValue();
+			if( value == null ) {
+				return null;
+			}
+			else if( value == FLASHBACK_NOT_CHANGED ) {
+				return getValue();
+			}
+			return ${attribute.javaLovClassName}.valueOf( ${root.javaClassName}Base.this, String.valueOf(value) );
+		}
+	}
+	</#if>
+	</#list>
+	
+
+}
