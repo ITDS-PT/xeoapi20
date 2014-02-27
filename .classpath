@@ -2,11 +2,12 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
-	<classpathentry kind="lib" path="project_lib/ejb.jar"/>
-	<classpathentry kind="lib" path="project_lib/servlet_2_4.jar"/>
-	<classpathentry kind="lib" path="project_lib/freemarker.jar"/>
-	<classpathentry kind="lib" path="project_lib/xmlparserv2.jar"/>
-	<classpathentry kind="lib" path="project_lib/xeocore.jar"/>
-	<classpathentry kind="lib" path="project_lib/xeoxwc.jar"/>
+	<classpathentry exported="true" kind="lib" path="project_lib/ejb.jar"/>
+	<classpathentry exported="true" kind="lib" path="project_lib/servlet_2_4.jar"/>
+	<classpathentry exported="true" kind="lib" path="project_lib/freemarker.jar"/>
+	<classpathentry exported="true" kind="lib" path="project_lib/xmlparserv2.jar"/>
+	<classpathentry exported="true" kind="lib" path="project_lib/xeocore.jar"/>
+	<classpathentry exported="true" kind="lib" path="project_lib/xeoxwc.jar"/>
+	<classpathentry exported="true" kind="lib" path="project_lib/log4j-1.2.15.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

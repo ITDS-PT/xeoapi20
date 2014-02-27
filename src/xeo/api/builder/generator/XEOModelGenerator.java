@@ -48,11 +48,11 @@ public class XEOModelGenerator {
 		modelGenerator.setPublicJavaPackage( "xeo.models" );
 		
 		// Path of the output of the generated files 
-		modelGenerator.setSourceInternalOutputDir( "/Users/jcarreira/Work/xeo/demos/DemoTemplates/src-internal" );
-		modelGenerator.setSourcePublicOutputDir( "/Users/jcarreira/Work/xeo/demos/DemoTemplates/src-xeogen" );
+		modelGenerator.setSourceInternalOutputDir( "/Users/jcarreira/Work/xeo/workspace/xeoapi20_tests_app/src-internal" );
+		modelGenerator.setSourcePublicOutputDir( "/Users/jcarreira/Work/xeo/workspace/xeoapi20_tests_app/src-xeogen" );
 		
 		// Path to xeoHome
-		modelGenerator.setXEOHome( "/Users/jcarreira/Work/xeo/demos/DemoTemplates" );
+		modelGenerator.setXEOHome( "/Users/jcarreira/Work/xeo/workspace/xeoapi20_tests_app/" );
 		
 		// Generate the source files
 		modelGenerator.generateFiles();
