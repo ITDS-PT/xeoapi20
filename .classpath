@@ -6,7 +6,7 @@
 	<classpathentry exported="true" kind="lib" path="project_lib/servlet_2_4.jar"/>
 	<classpathentry exported="true" kind="lib" path="project_lib/freemarker.jar"/>
 	<classpathentry exported="true" kind="lib" path="project_lib/xmlparserv2.jar"/>
-	<classpathentry exported="true" kind="lib" path="project_lib/xeocore.jar"/>
+	<classpathentry exported="true" kind="lib" path="project_lib/xeocore.jar" sourcepath="/xeo"/>
 	<classpathentry exported="true" kind="lib" path="project_lib/xeoxwc.jar"/>
 	<classpathentry exported="true" kind="lib" path="project_lib/log4j-1.2.15.jar"/>
 	<classpathentry kind="output" path="bin"/>

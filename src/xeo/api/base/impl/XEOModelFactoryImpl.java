@@ -5,6 +5,8 @@ import java.lang.reflect.Field;
 import java.util.Map;
 
 import netgest.bo.runtime.boObject;
+import netgest.bo.runtime.boObjectList;
+import xeo.api.base.XEOCollection;
 import xeo.api.base.XEOModelBase;
 import xeo.api.base.XEOModelFactory;
 import xeo.api.base.XEOScope;
@@ -168,5 +170,24 @@ public abstract class XEOModelFactoryImpl<T extends XEOModelBase> implements XEO
 			throw new RuntimeException( e );
 		}
 	}
+	
+	@Override
+	public XEOCollection<T> list() {
+		boObjectList list = boObjectList.list( this.scope.getEboContext(), "select " + getModelName() );
+		return new ListBoObjectImpl<T>( list , scope);
+	}
+	
+	@Override
+	public XEOCollection<T> list(String boqlWhere) {
+		boObjectList list = boObjectList.list( this.scope.getEboContext(), "select " + getModelName() + " where " + boqlWhere );
+		return new ListBoObjectImpl<T>( list , scope);
+	}
+	
+
+	public XEOCollection<T> list(String boqlWhere, Object...args) {
+		boObjectList list = boObjectList.list( this.scope.getEboContext(), "select " + getModelName() + " where " + boqlWhere, args );
+		return new ListBoObjectImpl<T>( list , scope);
+	}
+	
 	
 }
