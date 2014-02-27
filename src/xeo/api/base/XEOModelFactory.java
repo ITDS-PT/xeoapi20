@@ -17,5 +17,6 @@ public interface XEOModelFactory<T extends XEOModelBase> {
 	
 	public abstract Collection<T> list( String boqlWhere );
 	
+	public abstract Collection<T> list( String boqlWhere, Object...args );
 
 }

@@ -136,7 +136,7 @@ public class XEOAttributeCollectionFlashbackImpl<T extends XEOModelBase> impleme
 	}
 
 	@Override
-	public boolean remove(int index) {
+	public T remove(int index) {
 		throw new UnsupportedOperationException();
 	}
 	
@@ -240,7 +240,7 @@ public class XEOAttributeCollectionFlashbackImpl<T extends XEOModelBase> impleme
 	}
 
 	@Override
-	public void set(int idx, T object) {
+	public T set(int idx, T object) {
 		throw new UnsupportedOperationException();
 	}
 

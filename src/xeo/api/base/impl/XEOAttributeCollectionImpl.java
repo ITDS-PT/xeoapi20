@@ -125,10 +125,7 @@ public class XEOAttributeCollectionImpl<T extends XEOModelBase> implements XEOAt
 		boBridgeIterator bridgeIterator = this.bridge.iterator();
 		if ( bridgeIterator.absolute( line + 1 ) ) {
 			try {
-				return (T)XEOModelFactoryImpl.wrap( 
-						new XEOModelRefereceDebugInfo(  this.model.boui, this.bridgeName, bridgeIterator.getRow()-1, this.model.name() ), 
-						model.factory.scope, bridgeIterator.currentRow().getValueLong() 
-					) ;
+				return wrapObject( bridgeIterator.currentRow().getValueLong() ) ;
 			} catch (boRuntimeException e) {
 				throw new RuntimeException(e);
 			}
@@ -210,10 +207,7 @@ public class XEOAttributeCollectionImpl<T extends XEOModelBase> implements XEOAt
 			boObject newObject;
 			synchronized (this.bridge) {
 				newObject = this.bridge.addNewObject();
-				return (T)XEOModelFactoryImpl.wrap( 
-						new XEOModelRefereceDebugInfo(  this.model.boui, this.bridgeName, this.bridge.getRow(), this.model.name() ), 
-						model.factory.scope, newObject.getBoui() 
-					);
+				return wrapObject( newObject );
 			}
 		} catch (boRuntimeException e) {
 			throw new RuntimeException(e);
@@ -221,18 +215,18 @@ public class XEOAttributeCollectionImpl<T extends XEOModelBase> implements XEOAt
 	}
 
 	@Override
-	public boolean remove(int index) {
+	public T remove(int index) {
 		inititalizeCollection();
 		try {
 			synchronized (this) {
 				if( this.bridge.moveTo( index + 1 ) ) {
-					return this.bridge.remove();
+					this.bridge.remove();
 				}
-				return false;
 			}
 		} catch (boRuntimeException e) {
 			throw new RuntimeException(e);
 		}
+		return null;
 	}
 	
 	private final void 	inititalizeCollection() {
@@ -407,7 +401,7 @@ public class XEOAttributeCollectionImpl<T extends XEOModelBase> implements XEOAt
 	}
 	
 	@Override
-	public void set(int idx, T object) {
+	public T set(int idx, T object) {
 		inititalizeCollection();
 		synchronized ( this.bridge ) {
 			int row = this.bridge.getRow();
@@ -423,6 +417,7 @@ public class XEOAttributeCollectionImpl<T extends XEOModelBase> implements XEOAt
 				throw new IllegalArgumentException();
 			}
 		}
+		return null;
 	}
 
 	@Override
@@ -537,5 +532,16 @@ public class XEOAttributeCollectionImpl<T extends XEOModelBase> implements XEOAt
 		}
 		return Collections.unmodifiableList( filteredList );
 	}
- 	
+	
+	private T wrapObject( boObject obj ) {
+		return wrapObject( obj.getBoui() );
+	}
+	@SuppressWarnings("unchecked")
+	private T wrapObject( Long boui ) {
+		return (T)XEOModelFactoryImpl.wrap( 
+				new XEOModelRefereceDebugInfo(  this.model.boui, this.bridgeName, this.bridge.getRow(), this.model.name() ), 
+				model.factory.scope, boui
+			);
+	}
+
 }

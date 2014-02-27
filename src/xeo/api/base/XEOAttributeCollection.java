@@ -2,6 +2,7 @@ package xeo.api.base;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 public interface XEOAttributeCollection<T extends XEOModelBase> extends Collection<T>, XEOAttribute< XEOAttributeCollection<T> > {
 	/**
@@ -27,7 +28,7 @@ public interface XEOAttributeCollection<T extends XEOModelBase> extends Collecti
 	 * Set a model to a specific index
 	 * @return the instance created.
 	 */
-	public abstract void set( int idx, T object );
+	public abstract T set( int idx, T object );
 	
 	
 	/**
@@ -102,7 +103,7 @@ public interface XEOAttributeCollection<T extends XEOModelBase> extends Collecti
 	 * @param index the absolute position of the element
 	 * @return true if position is valid and the element was removed, false if the elements was not found, or not removed.
 	 */
-	public abstract boolean remove( int index );
+	public abstract T remove( int index );
 	
 	/**
 	 * Remove all elements of the collection
