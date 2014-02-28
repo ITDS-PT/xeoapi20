@@ -1,8 +1,9 @@
 package xeo.api.builder.generator;
 
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.util.Collection;
 import java.util.HashMap;
@@ -35,6 +36,7 @@ public class XEOModelGenerator {
 	private String internalOutputDir;
 
 	private XEODefBuilderProperties buildProperties = new XEODefBuilderProperties( );
+	private String encoding;
 	
 	public static void main(String[] args) throws Exception {
 		
@@ -133,8 +135,6 @@ public class XEOModelGenerator {
 
 		StringWriter out = new StringWriter();
 		try {
-			FileWriter fw;
-			
 			System.out.println( lovDef.getName() );
 			
 			templateModelLov.process( map, out);
@@ -142,12 +142,7 @@ public class XEOModelGenerator {
 			File dir = (new File(internalOutputDir + convertPackageToPath( lovDef.getJavaPackage() )));
 			dir.mkdirs();
 			
-			fw = new FileWriter( 
-					dir.getAbsolutePath()  + File.separator + lovDef.getJavaClassName() + ".java" 
-			);
-			
-			fw.write( out.getBuffer().toString() );
-			fw.close();
+			writeFile(dir.getAbsolutePath()  + File.separator + lovDef.getJavaClassName() + ".java", out.getBuffer().toString() );
 		}
 		catch( IOException e ) {
 			throw new RuntimeException( e );
@@ -162,17 +157,11 @@ public class XEOModelGenerator {
 
 		StringWriter out = new StringWriter();
 		try {
-			FileWriter fw;
-			
 			templateModelRegistry.process(  map, out);
 
 			File dir = (new File(internalOutputDir + convertPackageToPath( this.buildProperties.getJavaDictionaryPackage() )));
 			dir.mkdirs();
-			fw = new FileWriter( 
-				dir.getAbsolutePath()  + File.separator +  "XEOModelFactories.java" 
-			);
-			fw.write( out.getBuffer().toString() );
-			fw.close();
+			writeFile(dir.getAbsolutePath()  + File.separator +  "XEOModelFactories.java", out.getBuffer().toString() );
 		}
 		catch( IOException e ) {
 			throw new RuntimeException( e );
@@ -186,8 +175,6 @@ public class XEOModelGenerator {
 		
 		StringWriter out = new StringWriter();
 		try {
-			FileWriter fw;
-			
 			System.out.println( modelDef.getModelName() );
 			
 			templateModelInterface.process(  map, out);
@@ -195,12 +182,8 @@ public class XEOModelGenerator {
 			File dir = (new File(publicOutputDir + convertPackageToPath( modelDef.getJavaPackage() )));
 			dir.mkdirs();
 			
-			fw = new FileWriter( 
-					dir.getAbsolutePath()  + File.separator + modelDef.getJavaClassName() + ".java" 
-			);
+			writeFile(dir.getAbsolutePath()  + File.separator + modelDef.getJavaClassName() + ".java", out.getBuffer().toString() );
 			
-			fw.write( out.getBuffer().toString() );
-			fw.close();
 		}
 		catch( IOException e ) {
 			throw new RuntimeException( e );
@@ -217,7 +200,6 @@ public class XEOModelGenerator {
 
 		StringWriter out = new StringWriter();
 		try {
-			FileWriter fw;
 			System.out.println( modelDef.getModelName() );
 			
 			templateModelBase.process(  map, out);
@@ -225,21 +207,12 @@ public class XEOModelGenerator {
 			File dirBase = (new File(internalOutputDir + convertPackageToPath( modelDef.getJavaBasePackage() )));
 			dirBase.mkdirs();
 			
-			
-			fw = new FileWriter( 
-				dirBase.getAbsolutePath() + File.separator + modelDef.getJavaBaseClassName() + ".java" 
-			);
-			fw.write( out.getBuffer().toString() );
-			fw.close();
+			writeFile(dirBase.getAbsolutePath() + File.separator + modelDef.getJavaBaseClassName() + ".java", out.getBuffer().toString() );
 			
 			out = new StringWriter();
 			templateModelFactoryBase.process(  map, out);
-			fw = new FileWriter( 
-				dirBase.getAbsolutePath()  + File.separator + modelDef.getJavaClassName() + "FactoryBase.java" 
-			);
-			fw.write( out.getBuffer().toString() );
-			fw.close();
 			
+			writeFile(dirBase.getAbsolutePath()  + File.separator + modelDef.getJavaClassName() + "FactoryBase.java", out.getBuffer().toString() );
 			
 			File dir = (new File(publicOutputDir + convertPackageToPath( modelDef.getJavaPackage() )));
 			dir.mkdirs();
@@ -249,20 +222,14 @@ public class XEOModelGenerator {
 			if ( !modelClass.exists() ) {
 				out = new StringWriter();
 				templateModel.process(  map, out);
-				fw = new FileWriter( 
-						modelClass
-				);
-				fw.write( out.getBuffer().toString() );
-				fw.close();
+				writeFile(modelClass, out.getBuffer().toString() );
 			}
 			
 			File modelFactory = new File( dir.getAbsolutePath() + File.separator + modelDef.getJavaClassName() + "Factory.java" );
 			if( !modelFactory.exists() ) {
 				out = new StringWriter();
 				templateModelFactory.process(  map, out);
-				fw = new FileWriter( modelFactory );
-				fw.write( out.getBuffer().toString() );
-				fw.close();
+				writeFile(modelFactory, out.getBuffer().toString() );
 			}
 			
 		}
@@ -278,6 +245,22 @@ public class XEOModelGenerator {
 			name += File.separatorChar;
 		}
 		return name;
+	}
+	
+	private void writeFile( String fileName, String content ) throws IOException {
+		writeFile( new File( fileName ), content );
+	}
+	
+	private void writeFile( File file, String content ) throws IOException {
+		OutputStreamWriter fw;
+		if( this.encoding == null ) {
+			fw = new OutputStreamWriter( new FileOutputStream( file ) );
+		}
+		else {
+			fw = new OutputStreamWriter( new FileOutputStream( file ), this.encoding );
+		}
+		fw.write( content );
+		fw.close();
 	}
 	
 	public void setPublicJavaPackage( String javaPackage ) {
@@ -301,6 +284,10 @@ public class XEOModelGenerator {
 			publicOutputDir += File.separator;
 		}
 		this.publicOutputDir = publicOutputDir;
+	}
+	
+	public void setSourceEncodgin( String encoding ) {
+		this.encoding = encoding;
 	}
 	
 	public void setSourceInternalOutputDir( String internalOutputDir ) {
