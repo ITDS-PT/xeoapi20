@@ -9,10 +9,10 @@ import netgest.bo.runtime.boObjectList;
 import xeo.api.base.XEOCollection;
 import xeo.api.base.XEOModelBase;
 import xeo.api.base.XEOModelFactory;
+import xeo.api.base.XEOQLBuilder;
 import xeo.api.base.XEOScope;
 import xeo.api.base.exceptions.XEOModelNotDeployedException;
 import xeo.api.base.impl.ql.XEOQLPreProcessor;
-import xeo.api.builder.generator.XEONamesBeautifier;
 
 /**
  *
@@ -186,14 +186,16 @@ public abstract class XEOModelFactoryImpl<T extends XEOModelBase> implements XEO
 	
 
 	public XEOCollection<T> list(String boqlWhere, Object...args) {
-		
 		XEOQLPreProcessor preproc = new XEOQLPreProcessor(boqlWhere, args);
-		
 		boObjectList list = boObjectList.list( this.scope.getEboContext(), 
 				"select " + getModelName() + " where " + preproc.processQl(), 
 				preproc.getProcessedParameters() 
 		);
 		return new ListBoObjectImpl<T>( list , scope);
+	}
+
+	public XEOQLBuilder<T> listBuilder(String boqlWhere) {
+		return new XEOQLBuilderImpl<T>(scope, "select " + getModelName() + " where " + boqlWhere );
 	}
 	
 	

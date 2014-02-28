@@ -11,16 +11,6 @@ public class XEOQLPreProcessor {
 	private List<Object> outParametersArray;
 	private String   inBoql;
 	
-	public static void main(String[] args) {
-		XEOQLPreProcessor qlPreProc = new XEOQLPreProcessor("select * from Ebo_Perf where username={5} and {1} and boui={1} and xx=? and x={0}", "joao", 32312,"s" );
-		String result = qlPreProc.processQl();
-		System.out.println( result );
-		
-		for( Object x: qlPreProc.getProcessedParameters() ) {
-			System.out.println( x );
-		}
-	}
-	
 	public XEOQLPreProcessor( String boql, Object ... inParametersArray ) {
 		this.inBoql = boql;
 		this.inParametersArray = inParametersArray;

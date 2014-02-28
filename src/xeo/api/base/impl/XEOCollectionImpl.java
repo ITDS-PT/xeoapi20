@@ -12,7 +12,8 @@ public class XEOCollectionImpl<T extends XEOModelBase> implements XEOCollection<
 	
 	ListImpl<T> list;
 	
-	protected XEOCollectionImpl() {
+	protected XEOCollectionImpl( ListImpl<T> baseList  ) {
+		this.list = baseList;
 	}
 	
 	@Override
