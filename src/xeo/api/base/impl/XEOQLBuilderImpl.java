@@ -58,11 +58,6 @@ public class XEOQLBuilderImpl<T extends XEOModelBase> implements
 	private boolean useSecurity = true;
 
 	/**
-	 * Default page
-	 */
-	private int page = 1;
-
-	/**
 	 * The default page size
 	 */
 	private int pageSize = boObjectList.PAGESIZE_DEFAULT;
@@ -116,21 +111,10 @@ public class XEOQLBuilderImpl<T extends XEOModelBase> implements
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see xeo.api.base.impl.IXEOQLBuilder#page(int)
-	 */
-	@Override
-	public XEOQLBuilder<T> page(int page) {
-		this.page = page;
-		return this;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
 	 * @see xeo.api.base.impl.IXEOQLBuilder#pageSize(int)
 	 */
 	@Override
-	public XEOQLBuilder<T> pageSize(int pageSize) {
+	public XEOQLBuilder<T> fetchSize(int pageSize) {
 		this.pageSize = pageSize;
 		return this;
 	}
@@ -193,8 +177,8 @@ public class XEOQLBuilderImpl<T extends XEOModelBase> implements
 
 		try {
 			boObjectList boobjectlist = boObjectList.list(
-					this.scope.getEboContext(), boql, args, getPage(),
-					getPageSize(), getOrderBy(), getFullText(), null, null,
+					this.scope.getEboContext(), boql, args, 1,
+					getFetchSize(), getOrderBy(), getFullText(), null, null,
 					useSecurity, useCache);
 			XEOCollectionImpl<T> returnCollection = new XEOCollectionImpl<T>(
 					new ListBoObjectImpl<T>(boobjectlist, scope));
@@ -285,20 +269,10 @@ public class XEOQLBuilderImpl<T extends XEOModelBase> implements
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see xeo.api.base.impl.IXEOQLBuilder#getPage()
-	 */
-	@Override
-	public int getPage() {
-		return page;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
 	 * @see xeo.api.base.impl.IXEOQLBuilder#getPageSize()
 	 */
 	@Override
-	public int getPageSize() {
+	public int getFetchSize() {
 		return pageSize;
 	}
 

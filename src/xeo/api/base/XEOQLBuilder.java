@@ -21,21 +21,12 @@ public interface XEOQLBuilder<T extends XEOModelBase> {
 	public abstract XEOQLBuilder<T> argsList(Object... args);
 
 	/**
-	 * 
-	 * Set the page number (defaults to 1)
-	 * 
-	 * @param page The page number
-	 * @return
-	 */
-	public abstract XEOQLBuilder<T> page(int page);
-
-	/**
 	 * Set the page size
 	 * 
-	 * @param pageSize The page size (defaults to page size declared in {@link boObjectList#})
+	 * @param fetchSize The page size (defaults to page size declared in {@link boObjectList#})
 	 * @return
 	 */
-	public abstract XEOQLBuilder<T> pageSize(int pageSize);
+	public abstract XEOQLBuilder<T> fetchSize(int fetchSize);
 
 	/**
 	 * 
@@ -117,19 +108,11 @@ public interface XEOQLBuilder<T extends XEOModelBase> {
 
 	/**
 	 * 
-	 * The page number to position the result (defaults to 1 - first page)
-	 * 
-	 * @return
-	 */
-	public abstract int getPage();
-
-	/**
-	 * 
 	 * The page size for the query (defaults to 50)
 	 * 
 	 * @return
 	 */
-	public abstract int getPageSize();
+	public abstract int getFetchSize();
 
 	/**
 	 * 
