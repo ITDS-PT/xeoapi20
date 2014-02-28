@@ -118,7 +118,6 @@ public class XEOAttributeCollectionImpl<T extends XEOModelBase> implements XEOAt
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public T get(int line) {
 		inititalizeCollection();
@@ -199,7 +198,6 @@ public class XEOAttributeCollectionImpl<T extends XEOModelBase> implements XEOAt
 		return this.bridgeName;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public T add() {
 		inititalizeCollection();

@@ -237,11 +237,11 @@ public class XEOModelDefBuilder {
 		
 		// Create XEOModelImpl definition. (The base class for all models classes)
 		XEOModelDef modelDefBase = new XEOModelDef( ModelType.ABSTRACT_MODEL, "XEOModelImpl","_SYSTEM$1.0", "");
-		modelDefBase.setJavaNames( "XEOModelImpl" , "xeo.api.base.impl" , "xeo.api.base.impl" );
+		modelDefBase.setJavaNames( "XEOModelImpl", "XEOModelImpl", "xeo.api.base.impl" , "xeo.api.base.impl" );
 		
 		// Create XEOModelBase interface definition. (The base interface for all models)
 		XEOModelDef modelInterfaceBase = new XEOModelDef( ModelType.INTERFACE, "XEOModelBase", "", "" );
-		modelInterfaceBase.setJavaNames( "XEOModelBase" , "xeo.api.base", "xeo.api.base");
+		modelInterfaceBase.setJavaNames( "XEOModelBase", "XEOModelImpl" , "xeo.api.base", "xeo.api.base");
 		
 		// Build Hierarchy of the models and update XEOModelDef
 		for (XEOModelDef modelDef : modelsDef.values()) {
@@ -336,11 +336,60 @@ public class XEOModelDefBuilder {
 				packageName = "system";
 			}
 			
-			modelDef.setJavaNames(
-					XEONamesBeautifier
+			String modelJavaClassName = XEONamesBeautifier
 					.convertToClassName(
-								getModelMappedName(modelDef.getModelName(), modelDef)
-							),
+							getModelMappedName(modelDef.getModelName(), modelDef)
+						);
+
+			String modelJavaClassNameBase = XEONamesBeautifier
+					.convertToClassName(
+							getModelMappedName(modelDef.getModelName(), modelDef)
+						) + "Base";
+			
+			
+			boolean found = false;
+			int dup = 0;
+			
+			String newClassName = modelJavaClassName; 
+			String newClassBaseName = modelJavaClassNameBase;
+		
+			do {
+				found = false;
+				for( XEOModelDef modelDefCheckDup : this.modelsDef.values() ) {
+					if( modelDefCheckDup.equals( modelDef ) ) {
+						continue;
+					}
+					if( newClassName.equals( modelDefCheckDup.getJavaClassName() ) ) {
+						dup++;
+						newClassName = modelJavaClassName + dup;
+						found = true;
+						break;
+					}
+					if( newClassBaseName.equals( modelDefCheckDup.getJavaClassName() ) ) {
+						dup++;
+						newClassBaseName = modelJavaClassNameBase + dup;
+						found = true;
+						break;
+					}
+					if( newClassName.equals( modelDefCheckDup.getJavaBaseClassName() ) ) {
+						newClassName = modelJavaClassName + dup;
+						found = true;
+						break;
+					}
+					if( newClassBaseName.equals( modelDefCheckDup.getJavaBaseClassName() ) ) {
+						dup++;
+						newClassBaseName = modelJavaClassNameBase + dup;
+						found = true;
+						break;
+					}
+				}
+			} while( found );
+			
+			
+			
+			modelDef.setJavaNames(
+							newClassName,
+							newClassBaseName,
 							this.buildProperties.getJavaPackage() + XEONamesBeautifier.convertToPackageName( packageName  ),		
 							this.buildProperties.getJavaPackageBase() + XEONamesBeautifier.convertToPackageName( packageName  )		
 			);

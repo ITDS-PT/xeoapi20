@@ -48,11 +48,11 @@ public class XEOModelGenerator {
 		modelGenerator.setPublicJavaPackage( "xeo.models" );
 		
 		// Path of the output of the generated files 
-		modelGenerator.setSourceInternalOutputDir( "/Users/jcarreira/Work/xeo/workspace/xeoapi20_tests_app/src-internal" );
-		modelGenerator.setSourcePublicOutputDir( "/Users/jcarreira/Work/xeo/workspace/xeoapi20_tests_app/src-xeogen" );
+		modelGenerator.setSourceInternalOutputDir( "/Users/jcarreira/Work/xeo/workspace/xwc_portal/xwc_portal/src-internal" );
+		modelGenerator.setSourcePublicOutputDir( "/Users/jcarreira/Work/xeo/workspace/xwc_portal/xwc_portal/src-xeogen" );
 		
 		// Path to xeoHome
-		modelGenerator.setXEOHome( "/Users/jcarreira/Work/xeo/workspace/xeoapi20_tests_app/" );
+		modelGenerator.setXEOHome( "/Users/jcarreira/Work/xeo/workspace/xwc_portal/xwc_portal/" );
 		
 		// Generate the source files
 		modelGenerator.generateFiles();
@@ -227,7 +227,7 @@ public class XEOModelGenerator {
 			
 			
 			fw = new FileWriter( 
-				dirBase.getAbsolutePath() + File.separator + modelDef.getJavaClassName() + "Base.java" 
+				dirBase.getAbsolutePath() + File.separator + modelDef.getJavaBaseClassName() + ".java" 
 			);
 			fw.write( out.getBuffer().toString() );
 			fw.close();

@@ -22,7 +22,7 @@ public abstract class ${root.javaClassName}FactoryBase<T extends ${root.javaClas
 	protected T instatiateWrapper(Long boui) {
 		${root.javaClassName} model = new ${root.javaClassName}();
 		
-		((${root.javaClassName}Base)model).setFactory( this );
+		((${root.javaBaseClassName})model).setFactory( this );
 		
 		return (T)model;
 	}

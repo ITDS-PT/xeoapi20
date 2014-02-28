@@ -39,6 +39,8 @@ public class XEOModelDef implements Cloneable {
 	private String description;
 	
 	private boolean isFinal;
+
+	private String javaBaseClassName;
 	
 	public XEOModelDef( ModelType type, String modelName, String modelPackage, String description ) {
 		this.modelName = modelName;
@@ -117,7 +119,8 @@ public class XEOModelDef implements Cloneable {
 		return this.bridges.keySet();
 	}
 	
-	void setJavaNames( String javaClass, String javaPackage, String javaBasePackage ) {
+	void setJavaNames( String javaClass, String javaClassBase, String javaPackage, String javaBasePackage ) {
+		this.javaBaseClassName = javaClassBase;
 		this.javaClassName = javaClass;
 		this.javaPackage = javaPackage;
 		this.javaBasePackage = javaBasePackage;
@@ -208,6 +211,10 @@ public class XEOModelDef implements Cloneable {
 			modelDef = modelDef.getSuper();
 		}
 		return map.values();
+	}
+	
+	public String getJavaBaseClassName() {
+		return javaBaseClassName;
 	}
 
 }

@@ -2,7 +2,6 @@ package xeo.api.base;
 
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 
 public interface XEOAttributeCollection<T extends XEOModelBase> extends Collection<T>, XEOAttribute< XEOAttributeCollection<T> > {
 	/**

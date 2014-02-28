@@ -14,7 +14,7 @@ import ${importPackage};
 
 <#assign appendComma=false><#assign firstElement=true>
 @SuppressWarnings(value="all")
-public abstract class ${root.javaClassName}Base extends ${root.super.javaClassName} <#list root.implementedInterfaces as interface><#if firstElement>implements </#if><#if appendComma>, </#if>${interface.javaClassName}<#assign appendComma=true><#assign firstElement=false></#list>
+public abstract class ${root.javaBaseClassName} extends ${root.super.javaClassName} <#list root.implementedInterfaces as interface><#if firstElement>implements </#if><#if appendComma>, </#if>${interface.javaClassName}<#assign appendComma=true><#assign firstElement=false></#list>
 {
 	
 	private Attributes attributes = new Attributes();
@@ -92,8 +92,9 @@ public abstract class ${root.javaClassName}Base extends ${root.super.javaClassNa
 		* @return the handler of the attribute ${bridge.modelName}
 		*/
 		// Object Attributes
-		public XEOAttributeCollection<${bridge.referencedModel.javaClassName}> get${bridge.javaGetterSetterName}() {
-			return ${root.javaClassName}Base.this.get${bridge.javaGetterSetterName}(); 
+		<#if !bridge.final>@SuppressWarnings(value="all")</#if>
+		public <#if !bridge.final><T extends ${bridge.referencedModel.javaClassName}></#if> XEOAttributeCollection<<#if !bridge.final>T<#else>${bridge.referencedModel.javaClassName}</#if>> get${bridge.javaGetterSetterName}() {
+			return <#if !bridge.final>(XEOAttributeCollection<T>)</#if>${root.javaBaseClassName}.this.get${bridge.javaGetterSetterName}(); 
 		}
 	</#list>
 	
@@ -187,11 +188,11 @@ public abstract class ${root.javaClassName}Base extends ${root.super.javaClassNa
 	* @return the collection of ${bridge.modelName}
 	*/
 	@SuppressWarnings("unchecked")
-	public XEOAttributeCollection<${bridge.referencedModel.javaClassName}> get${bridge.javaGetterSetterName}() {
+	public <#if !bridge.final><T extends ${bridge.referencedModel.javaClassName}></#if> XEOAttributeCollection<<#if !bridge.final>T<#else>${bridge.referencedModel.javaClassName}</#if>> get${bridge.javaGetterSetterName}() {
 		if( _${bridge.javaFieldName} == null ) {
 			_${bridge.javaFieldName} = (XEOAttributeCollection<${bridge.referencedModel.javaClassName}>)attributeCollectionFactory( Names.${bridge.javaStaticFieldName} );
 		}
-		return _${bridge.javaFieldName};
+		return <#if !bridge.final>(XEOAttributeCollection<T>)</#if>_${bridge.javaFieldName};
 	}
 </#list>
 
@@ -390,7 +391,7 @@ public abstract class ${root.javaClassName}Base extends ${root.super.javaClassNa
 				if( value == null ) {
 					return null;
 				}
-				return ${attribute.javaLovClassName}.valueOf( ${root.javaClassName}Base.this, String.valueOf(value) );
+				return ${attribute.javaLovClassName}.valueOf( ${root.javaBaseClassName}.this, String.valueOf(value) );
 			} catch (boRuntimeException e) {
 				throw new RuntimeException(e);
 			}
@@ -413,7 +414,7 @@ public abstract class ${root.javaClassName}Base extends ${root.super.javaClassNa
 			else if( value == FLASHBACK_NOT_CHANGED ) {
 				return getValue();
 			}
-			return ${attribute.javaLovClassName}.valueOf( ${root.javaClassName}Base.this, String.valueOf(value) );
+			return ${attribute.javaLovClassName}.valueOf( ${root.javaBaseClassName}.this, String.valueOf(value) );
 		}
 	}
 	</#if>

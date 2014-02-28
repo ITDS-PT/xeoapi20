@@ -25,6 +25,7 @@ public class ListBoObjectIteratorImpl<T extends XEOModelBase> implements Iterato
 		return ret || boobjectList.haveMorePages();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public T next() {
 		if( hasNext() ) {
