@@ -286,7 +286,7 @@ public class XEOModelGenerator {
 		this.publicOutputDir = publicOutputDir;
 	}
 	
-	public void setSourceEncodgin( String encoding ) {
+	public void setSourceEncoding( String encoding ) {
 		this.encoding = encoding;
 	}
 	
