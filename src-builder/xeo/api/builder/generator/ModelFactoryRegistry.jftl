@@ -1,0 +1,7 @@
+package xeo.models.impl._factories;
+
+import ${root.javaPackage}.${root.javaClassName}Factory;
+
+<#if root.modelType="ABSTRACT_MODEL">abstract </#if>class ${root.javaClassName}FactoryLocation {
+	public static final Class<${root.javaClassName}Factory> FACTORY = ${root.javaClassName}Factory.class;
+}

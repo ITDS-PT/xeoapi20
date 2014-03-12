@@ -1,0 +1,16 @@
+package ${root.javaPackage};
+
+import ${root.javaBasePackage}.${root.javaClassName}FactoryBase;
+<#list root.getJavaImports() as import >import ${import};
+</#list>
+
+public <#if root.modelType="ABSTRACT_MODEL">abstract </#if>class ${root.javaClassName}Factory extends  ${root.javaClassName}FactoryBase<${root.javaClassName}> {
+
+<#--
+	<#if root.modelType="MODEL">
+	public static ${root.javaClassName}Factory getInstance() {
+		return (${root.javaClassName}Factory)${root.javaClassName}FactoryBase.getInstance();
+	}
+	</#if>
+-->
+}

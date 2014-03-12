@@ -9,4 +9,6 @@ public interface XEOModelFactory<T extends XEOModelBase> extends XEOModelAbstrac
 
 	public abstract T create(XEOModelBase parent);
 
+	XEOQLBuilder<T> listBuilder(String boqlWhere);
+
 }

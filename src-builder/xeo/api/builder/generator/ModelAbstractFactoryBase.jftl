@@ -1,0 +1,28 @@
+package ${root.javaBasePackage};
+
+import netgest.bo.runtime.boObject;
+import xeo.api.base.impl.XEOModelAbstractFactoryImpl;
+import xeo.api.base.XEOScope;
+import ${root.javaPackage}.${root.javaClassName};
+import ${root.javaPackage}.${root.javaClassName}Factory;
+<#list root.getJavaBaseImports() as import >
+import ${import};
+</#list>
+
+
+@SuppressWarnings("unused")
+public abstract class ${root.javaClassName}FactoryBase<T extends ${root.javaClassName}> extends XEOModelAbstractFactoryImpl<T>
+{
+	private static final String MODEL_NAME="${root.modelName}";
+	protected static ${root.javaClassName}Factory modelFactory;
+	
+	@Override
+	protected String getModelName() {
+		return MODEL_NAME;
+	}
+
+	public static ${root.javaClassName}Factory get() {
+		return XEOScope.getCurrentScope().getFactory( ${root.javaClassName}Factory.class );
+	}
+	
+}

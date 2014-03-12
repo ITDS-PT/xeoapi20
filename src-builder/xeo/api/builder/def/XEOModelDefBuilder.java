@@ -40,10 +40,10 @@ import xeo.api.builder.generator.XEONamesBeautifier;
 
 public class XEOModelDefBuilder {
 	
-	XEODefBuilderProperties buildProperties;
+	private XEODefBuilderProperties buildProperties;
 	
 	// Builder properties e rename of models/attributes
-	Properties namesMapping = new Properties();
+	private Properties namesMapping = new Properties();
 	
 	// Map with all modelsDefinition
 	private Map<String, XEOModelDef> modelsDef = new LinkedHashMap<String, XEOModelDef>();

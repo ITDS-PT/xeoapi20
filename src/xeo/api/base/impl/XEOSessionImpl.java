@@ -14,6 +14,7 @@ import netgest.bo.system.boPoolable;
 import netgest.bo.system.boSession;
 import xeo.api.base.XEOScope;
 import xeo.api.base.XEOSession;
+import xeo.api.base.impl.XEOScopeImpl.XEOScopePoolable;
 
 public class XEOSessionImpl extends boPoolable implements XEOSession, boPoolOwner {
 
@@ -66,11 +67,11 @@ public class XEOSessionImpl extends boPoolable implements XEOSession, boPoolOwne
 	        boPoolManager   boPoolMgr    = boMemArchive.getPoolManager();
 	        oEboContext.setPreferredPoolObjectOwner( poolOwner.poolUniqueId() );
 	        
-	        XEOScopeImpl t = (XEOScopeImpl)boPoolMgr.getObject( oEboContext, "XEOModelScope:ID:" + id );
+	        XEOScopePoolable t = (XEOScopePoolable)boPoolMgr.getObject( oEboContext, "XEOModelScope:ID:" + id );
 	        if( t != null )
-	        	addScopeToRequest( oEboContext , t);
+	        	addScopeToRequest( oEboContext , t.getScope());
 	    
-	        return t;
+	        return t!=null?t.getScope():null;
         }
         return null;
     }
@@ -78,7 +79,7 @@ public class XEOSessionImpl extends boPoolable implements XEOSession, boPoolOwne
     private void addScopeToRequest( EboContext oContext, XEOScopeImpl t ) {
         ArrayList<XEOScopeImpl> l = requestTransids.get( oContext.poolUniqueId() );
         if( l != null ) {
-        	if ( !l.contains( t.poolUniqueId() ) ) {
+        	if ( !l.contains( t.getPoolable().poolUniqueId() ) ) {
         		l.add( t );
         	}
         }
@@ -109,8 +110,8 @@ public class XEOSessionImpl extends boPoolable implements XEOSession, boPoolOwne
 			        XEOScopeImpl    scope = new XEOScopeImpl( this );
 			        oEboContext.setPreferredPoolObjectOwner( this.poolOwner.poolUniqueId() );
 			        scope.setEboContext( oEboContext );
-			        boPoolMgr.putObject( scope, new Object[] { this.poolOwner.poolUniqueId() });
-			        scope.poolSetStateFull( this.poolOwner.poolUniqueId() );
+			        boPoolMgr.putObject( scope.getPoolable(), new Object[] { this.poolOwner.poolUniqueId() });
+			        scope.getPoolable().poolSetStateFull( this.poolOwner.poolUniqueId() );
 			        addScopeToRequest( oEboContext , scope );
 			        return scope;
 	        	}

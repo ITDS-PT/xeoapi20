@@ -1,8 +1,7 @@
 package xeo.api.base;
 
 
-public interface XEOScope {
-
+public abstract class XEOScope {
 	
 	/**
 	 * 
@@ -11,7 +10,7 @@ public interface XEOScope {
 	 * @param modelClass the class of the factory
 	 * @return a instance of the factory
 	 */
-	public abstract <T extends XEOModelFactory<? extends XEOModelBase>> T getFactory(
+	public abstract <T extends XEOModelAbstractFactory<? extends XEOModelBase>> T getFactory(
 			Class<T> modelClass);
 
 	/**
@@ -33,12 +32,12 @@ public interface XEOScope {
 	 * 
 	 */
 	
-	public void release();
+	public abstract void release();
 	
 	/**
 	 * Release all objects in memory of this scope.
 	 */
-	public void flush();
+	public abstract void flush();
 	
 	
 	/**
@@ -47,7 +46,24 @@ public interface XEOScope {
 	 * 
 	 * @return the current XEOSession
 	 */
-	public XEOSession getSession();
+	public abstract XEOSession getSession();
+	
+	
+	/**
+	 * Get the default scope in the current Thread
+	 * 
+	 * @return the scope
+	 */
+	public static XEOScope getCurrentScope() {
+		return XEOThreadLocalScope.get();
+	}
+	
+	/**
+	 * Set the default scope in the current Thread
+	 * 
+	 * @return the scope
+	 */
+	public abstract void setCurrentScope();
 	
 	
 }

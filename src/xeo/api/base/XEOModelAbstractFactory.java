@@ -12,4 +12,6 @@ public interface XEOModelAbstractFactory<T extends XEOModelBase> {
 	
 	public abstract Collection<T> list( String boqlWhere, Object...args );
 
+	public abstract XEOQLBuilder<T> listBuilder(String boqlWhere);
+
 }

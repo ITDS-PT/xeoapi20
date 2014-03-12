@@ -7,6 +7,7 @@ import java.util.Map;
 import netgest.bo.runtime.boObject;
 import netgest.bo.runtime.boObjectList;
 import xeo.api.base.XEOCollection;
+import xeo.api.base.XEOModelAbstractFactory;
 import xeo.api.base.XEOModelBase;
 import xeo.api.base.XEOModelFactory;
 import xeo.api.base.XEOQLBuilder;
@@ -19,9 +20,7 @@ import xeo.api.base.impl.ql.XEOQLPreProcessor;
  *
  * @param <T> the type of models produced by this factory
  */
-public abstract class XEOModelFactoryImpl<T extends XEOModelBase> implements XEOModelFactory<T> {
-	
-	protected XEOScopeImpl scope;
+public abstract class XEOModelFactoryImpl<T extends XEOModelBase> extends XEOModelAbstractFactoryImpl<T> implements XEOModelFactory<T> {
 	
 	/* (non-Javadoc)
 	 * @see xeo.api.base.IXEOModelFactory#create()
@@ -117,24 +116,25 @@ public abstract class XEOModelFactoryImpl<T extends XEOModelBase> implements XEO
 	@SuppressWarnings("unchecked")
 	public static Class<XEOModelFactoryImpl<XEOModelBase>> findFactoryClass( String booobjectName ) {
 		
-		String factoryClassName = XEONamesBeautifier.convertToClassName(booobjectName) + "Factory";
+		String factoryClassName = XEONamesBeautifier.convertToClassName(booobjectName) + "FactoryLocation";
 		
 		Class<XEOModelFactoryImpl<XEOModelBase>> factoryClass;
 		try {
-			Field factoryField = Class.forName( "xeo.models.XEOModelFactories" ).getField( factoryClassName );
-			factoryClass = (Class<XEOModelFactoryImpl<XEOModelBase>>)factoryField.get(null);
+			factoryClass = (Class<XEOModelFactoryImpl<XEOModelBase>>)Class.forName( "xeo.models.impl._factories." + factoryClassName );
+			Field f = factoryClass.getField("FACTORY");
+			f.setAccessible( true );
+			return (Class<XEOModelFactoryImpl<XEOModelBase>>)f.get( null );
 		} catch (ClassNotFoundException e) {
-			throw new RuntimeException(e);
+			throw new XEOModelNotDeployedException(booobjectName, "", e);
 		} catch (SecurityException e) {
 			throw new RuntimeException(e);
-		} catch (NoSuchFieldException e) {
-			throw new XEOModelNotDeployedException(booobjectName, "", e);
 		} catch (IllegalArgumentException e) {
+			throw new RuntimeException(e);
+		} catch (NoSuchFieldException e) {
 			throw new RuntimeException(e);
 		} catch (IllegalAccessException e) {
 			throw new RuntimeException(e);
 		}
-		return factoryClass;
 	}
 	
 	void setScope( XEOScopeImpl scope ) {
@@ -150,14 +150,12 @@ public abstract class XEOModelFactoryImpl<T extends XEOModelBase> implements XEO
 	}
 	
 	
-	static final <Y extends XEOModelFactory<?>> Y getModelFactory( Class<Y> modelClassFactory ) {
+	static final <Y extends XEOModelAbstractFactory<?>> Y getModelFactory( Class<Y> modelClassFactory ) {
 		try {
 			// Obtain model factory to this object
 			@SuppressWarnings("unchecked")
 			Class<Y> modelFactoryClass = (Class<Y>) Class.forName( modelClassFactory.getName() );
-			
 			Y modelFactory = modelFactoryClass.newInstance();
-			
 			return modelFactory;
 		} catch (SecurityException e) {
 			throw new RuntimeException( e );
@@ -185,6 +183,7 @@ public abstract class XEOModelFactoryImpl<T extends XEOModelBase> implements XEO
 	}
 	
 
+	@Override
 	public XEOCollection<T> list(String boqlWhere, Object...args) {
 		XEOQLPreProcessor preproc = new XEOQLPreProcessor(boqlWhere, args);
 		boObjectList list = boObjectList.list( this.scope.getEboContext(), 
@@ -193,7 +192,8 @@ public abstract class XEOModelFactoryImpl<T extends XEOModelBase> implements XEO
 		);
 		return new ListBoObjectImpl<T>( list , scope);
 	}
-
+	
+	@Override
 	public XEOQLBuilder<T> listBuilder(String boqlWhere) {
 		return new XEOQLBuilderImpl<T>(scope, "select " + getModelName() + " where " + boqlWhere );
 	}

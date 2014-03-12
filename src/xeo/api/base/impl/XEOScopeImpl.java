@@ -13,9 +13,10 @@ import netgest.bo.system.boMemoryArchive;
 import netgest.bo.system.boPoolManager;
 import netgest.bo.system.boPoolOwner;
 import netgest.bo.system.boPoolable;
+import xeo.api.base.XEOModelAbstractFactory;
 import xeo.api.base.XEOModelBase;
-import xeo.api.base.XEOModelFactory;
 import xeo.api.base.XEOScope;
+import xeo.api.base.XEOThreadLocalScope;
 import xeo.api.base.exceptions.XEOConcurrentModificationException;
 import xeo.api.base.exceptions.XEODuplicateKeyException;
 import xeo.api.base.exceptions.XEOException;
@@ -26,19 +27,20 @@ import xeo.api.base.exceptions.XEORuntimeException;
 import xeo.api.base.exceptions.XEOSaveException;
 import xeo.api.base.exceptions.XEOUnknownBouiException;
 
-public class XEOScopeImpl extends boPoolable implements boPoolOwner, XEOScope  {
+public class XEOScopeImpl extends XEOScope  {
 	
 	private static Map<boPoolable,Map<Long,XEOModelBase>> 			MODELS_LOADED 	= 
 			new WeakHashMap<boPoolable, Map<Long,XEOModelBase>>();
 	
-	private static Map<boPoolable,Map<Class<?>,XEOModelFactory<?>>> MODELS_FACTORIES = 
-			new WeakHashMap<boPoolable, Map<Class<?>,XEOModelFactory<?>>>();
+	private static Map<boPoolable,Map<Class<?>,XEOModelAbstractFactory<?>>> MODELS_FACTORIES = 
+			new WeakHashMap<boPoolable, Map<Class<?>,XEOModelAbstractFactory<?>>>();
 	
 	private boThread 		oBoThread;
 	private BoObjectFactory boObjectFactory = new BoObjectFactory();
 	
 	private XEOSessionImpl  session;
-	private boPoolable		poolOwner = this;
+	
+	private XEOScopePoolable        poolable = new XEOScopePoolable();
 	
 	private boolean			closed = false;
 	private StackTraceElement[] createIn = (new Throwable()).getStackTrace();
@@ -50,22 +52,26 @@ public class XEOScopeImpl extends boPoolable implements boPoolOwner, XEOScope  {
 	
 	protected XEOScopeImpl( XEOSessionImpl session, boPoolable owner ) {
 		this.session = session;
-		this.poolOwner = owner!=null?owner:this.poolOwner;
+		this.poolable.poolOwner = owner!=null?owner:this.poolable.poolOwner;
 	}
 	
-	@Override
 	public EboContext getEboContext() {
 		checkClosed();
 		return session.getEboContext();
 	}
 	
+	public void setEboContext( EboContext context ) {
+		this.poolable.setEboContext( context );
+	}
+
+	
 	protected Map<Long,XEOModelBase> getLoadModelsMap() {
-		Map<Long,XEOModelBase> modelsLoaded = MODELS_LOADED.get( this.poolOwner );
+		Map<Long,XEOModelBase> modelsLoaded = MODELS_LOADED.get( this.poolable.poolOwner );
 		if( modelsLoaded == null ) {
 			synchronized ( MODELS_LOADED ) {
-				if( (modelsLoaded = MODELS_LOADED.get( this.poolOwner )) == null ) {
+				if( (modelsLoaded = MODELS_LOADED.get( this.poolable.poolOwner )) == null ) {
 					modelsLoaded = new HashMap<Long, XEOModelBase>();
-					MODELS_LOADED.put( this.poolOwner, modelsLoaded );
+					MODELS_LOADED.put( this.poolable.poolOwner, modelsLoaded );
 				}
 			}
 		}
@@ -77,19 +83,19 @@ public class XEOScopeImpl extends boPoolable implements boPoolOwner, XEOScope  {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public <T extends XEOModelFactory<? extends XEOModelBase>> T getFactory( Class<T> modelClass ) {
+	public <T extends XEOModelAbstractFactory<? extends XEOModelBase>> T getFactory( Class<T> modelClass ) {
 		
 		checkClosed();
 		
 		T factory = null;
 		
-		Map<Class<?>,XEOModelFactory<?>> modelsFactory = MODELS_FACTORIES.get( this.poolOwner );
+		Map<Class<?>,XEOModelAbstractFactory<?>> modelsFactory = MODELS_FACTORIES.get( this.poolable.poolOwner );
 		
 		if( modelsFactory == null ) {
 			synchronized (MODELS_FACTORIES) {
-				if( (modelsFactory = MODELS_FACTORIES.get( this.poolOwner )) == null ) {
-					modelsFactory = new HashMap<Class<?>, XEOModelFactory<?>>();
-					MODELS_FACTORIES.put( this.poolOwner,modelsFactory );
+				if( (modelsFactory = MODELS_FACTORIES.get( this.poolable.poolOwner )) == null ) {
+					modelsFactory = new HashMap<Class<?>, XEOModelAbstractFactory<?>>();
+					MODELS_FACTORIES.put( this.poolable.poolOwner,modelsFactory );
 				}
 			}
 		}
@@ -101,21 +107,12 @@ public class XEOScopeImpl extends boPoolable implements boPoolOwner, XEOScope  {
 			synchronized (modelsFactory) {
 				if( (factory = (T) modelsFactory.get( modelClass )) == null ) {
 					factory = XEOModelFactoryImpl.getModelFactory( modelClass );
-					((XEOModelFactoryImpl<?>)factory).setScope( this );
+					((XEOModelAbstractFactoryImpl<?>)factory).setScope( this );
 					modelsFactory.put(modelClass, factory);
 				}
 			}
 		}
 		return factory;
-	}
-	
-	@Override
-	public boThread getThread() {
-        if( oBoThread == null )
-        {
-            oBoThread = new boThread();
-        }
-        return oBoThread;
 	}
 	
 	public BoObjectFactory getBoManager() {
@@ -136,8 +133,8 @@ public class XEOScopeImpl extends boPoolable implements boPoolOwner, XEOScope  {
 		
 		        String sLastPoolOwner = oEboContext.getPreferredPoolObjectOwner();
 		        try {
-					oEboContext.setPreferredPoolObjectOwner( poolOwner.poolUniqueId() );
-					boPoolMgr.realeaseAllObjects( poolOwner.poolUniqueId() );
+					oEboContext.setPreferredPoolObjectOwner( poolable.poolOwner.poolUniqueId() );
+					boPoolMgr.realeaseAllObjects( poolable.poolOwner.poolUniqueId() );
 				} finally {
 		        	oEboContext.setPreferredPoolObjectOwner( sLastPoolOwner );
 				}
@@ -148,8 +145,8 @@ public class XEOScopeImpl extends boPoolable implements boPoolOwner, XEOScope  {
 			this.oBoThread.clear();
 		}
 		
-		MODELS_FACTORIES.remove( this.poolOwner );
-		MODELS_LOADED.remove( this.poolOwner );
+		MODELS_FACTORIES.remove( this.poolable.poolOwner );
+		MODELS_LOADED.remove( this.poolable.poolOwner );
 	};
 	
 	/* (non-Javadoc)
@@ -163,6 +160,16 @@ public class XEOScopeImpl extends boPoolable implements boPoolOwner, XEOScope  {
 		}
 	}
 	
+	
+	public XEOScopePoolable getPoolable() {
+		return this.poolable;
+	}
+	
+	@Override
+	public void setCurrentScope() {
+		XEOThreadLocalScope.setDefaultScope( this );
+	}
+	
 	public class BoObjectFactory {
 		
 		public boObject load( Long boui ) throws XEOException {
@@ -170,7 +177,7 @@ public class XEOScopeImpl extends boPoolable implements boPoolOwner, XEOScope  {
 			EboContext context = getEboContext();
 			String previousContext = context.getPreferredPoolObjectOwner();
 			try {
-				context.setPreferredPoolObjectOwner( poolOwner.poolUniqueId() );
+				context.setPreferredPoolObjectOwner( poolable.poolOwner.poolUniqueId() );
 				return boObject.getBoManager().loadObject( getEboContext(), boui );
 			} catch (boRuntimeException e) {
 				// Boui 0
@@ -198,7 +205,7 @@ public class XEOScopeImpl extends boPoolable implements boPoolOwner, XEOScope  {
 			synchronized ( context ) {
 				String previousContext = context.getPreferredPoolObjectOwner();
 				try {
-					context.setPreferredPoolObjectOwner( poolOwner.poolUniqueId() );
+					context.setPreferredPoolObjectOwner( poolable.poolOwner.poolUniqueId() );
 					return boObject.getBoManager().createObject( getEboContext(), modelName );
 				} catch (boRuntimeException e) {
 					if( "BO-3001".equals(e.getErrorCode()) ) {
@@ -217,7 +224,7 @@ public class XEOScopeImpl extends boPoolable implements boPoolOwner, XEOScope  {
 			synchronized ( context ) {
 				String previousContext = context.getPreferredPoolObjectOwner();
 				try {
-					context.setPreferredPoolObjectOwner( poolOwner.poolUniqueId() );
+					context.setPreferredPoolObjectOwner( poolable.poolOwner.poolUniqueId() );
 					return boObject.getBoManager().createObjectWithParent( getEboContext(), modelName, parentBoui );
 				} catch (boRuntimeException e) {
 					if( "BO-3001".equals(e.getErrorCode()) ) {
@@ -243,7 +250,7 @@ public class XEOScopeImpl extends boPoolable implements boPoolOwner, XEOScope  {
 			synchronized ( context ) {
 				String previousContext = context.getPreferredPoolObjectOwner();
 				try {
-					context.setPreferredPoolObjectOwner( poolOwner.poolUniqueId() );
+					context.setPreferredPoolObjectOwner( poolable.poolOwner.poolUniqueId() );
 					return boObject.getBoManager().getClassNameFromBOUI( getEboContext(), boui );
 				} catch (boRuntimeException e) {
 					if( "BO-3018".equals(e.getErrorCode()) ) {
@@ -321,14 +328,6 @@ public class XEOScopeImpl extends boPoolable implements boPoolOwner, XEOScope  {
 	}
 	
 	
-	@Override
-	public void poolObjectPassivate() {
-	}
-
-	@Override
-	public void poolObjectActivate() {
-	}
-
 	public XEOSessionImpl getSession() {
 		checkClosed();
 		return session;
@@ -348,9 +347,9 @@ public class XEOScopeImpl extends boPoolable implements boPoolOwner, XEOScope  {
 		String lastOwner = eboContext.getPreferredPoolObjectOwner();
 		try {
 			synchronized (eboContext) {
-				eboContext.setPreferredPoolObjectOwner( this.poolUniqueId() );
-				eboContext.getApplication().getMemoryArchive().getPoolManager().realeaseObjects( this.poolUniqueId(), eboContext );
-				eboContext.setPreferredPoolObjectOwner( this.poolOwner.poolUniqueId() );
+				eboContext.setPreferredPoolObjectOwner( this.poolable.poolUniqueId() );
+				eboContext.getApplication().getMemoryArchive().getPoolManager().realeaseObjects( this.poolable.poolUniqueId(), eboContext );
+				eboContext.setPreferredPoolObjectOwner( this.poolable.poolOwner.poolUniqueId() );
 				eboContext.releaseObjects();
 			}
 		}
@@ -360,13 +359,6 @@ public class XEOScopeImpl extends boPoolable implements boPoolOwner, XEOScope  {
 		
 	}
 	
-	@Override
-	public String poolUniqueId() {
-		if( this.poolOwner == this ) 
-			return super.poolUniqueId();
-		
-		return this.poolOwner.poolUniqueId();
-	}
 	
 	public boolean isClosed() {
 		return closed;
@@ -388,6 +380,46 @@ public class XEOScopeImpl extends boPoolable implements boPoolOwner, XEOScope  {
 			}
 			System.err.println( sb );
 		}
+	}
+	
+	public class XEOScopePoolable extends boPoolable implements boPoolOwner {
+		
+		private boPoolable		poolOwner = this;
+		
+		@Override
+		public EboContext getEboContext() {
+			return XEOScopeImpl.this.getEboContext();
+		}
+
+		@Override
+		public boThread getThread() {
+	        if( oBoThread == null )
+	        {
+	            oBoThread = new boThread();
+	        }
+	        return oBoThread;
+		}
+		
+		@Override
+		public void poolObjectPassivate() {
+		}
+
+		@Override
+		public void poolObjectActivate() {
+		}
+		
+		@Override
+		public String poolUniqueId() {
+			if( this.poolOwner == this ) 
+				return super.poolUniqueId();
+			
+			return this.poolOwner.poolUniqueId();
+		}
+		
+		public XEOScopeImpl getScope() {
+			return XEOScopeImpl.this;
+		}
+		
 	}
 	
 }

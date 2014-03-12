@@ -12,6 +12,7 @@ import xeo.api.base.XEOApplication;
 import xeo.api.base.XEOModelBase;
 import xeo.api.base.XEOScope;
 import xeo.api.base.XEOSession;
+import xeo.api.base.impl.XEOScopeImpl.XEOScopePoolable;
 
 public class XEOApplicationImpl extends XEOApplication {
 
@@ -45,8 +46,8 @@ public class XEOApplicationImpl extends XEOApplication {
 		boPoolable poolOwner =  eboContext.getBoSession().getApplication().getMemoryArchive().getPoolManager()
 			.getObjectById( eboContext.getPreferredPoolObjectOwner() );
 		
-		if( poolOwner instanceof XEOScope ) {
-			return (XEOScope)poolOwner;
+		if( poolOwner instanceof XEOScopePoolable ) {
+			return ((XEOScopePoolable)poolOwner).getScope();
 		}
 		else {
 			return new XEOScopeImpl( (XEOSessionImpl)wrapSession( eboContext.getBoSession() ), poolOwner );

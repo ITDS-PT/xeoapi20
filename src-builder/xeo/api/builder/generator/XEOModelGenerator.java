@@ -20,14 +20,18 @@ import freemarker.template.Template;
 
 public class XEOModelGenerator {
 	
+	Template templateModel;
 	Template templateModelBase;
 	Template templateModelFactoryBase;
-	Template templateModel;
 	Template templateModelFactory;
+	
 	Template templateModelInterface;
-	Template templateModelRegistry;
+//	Template templateModelRegistry;
+	Template templateModelFactoryRegistry;
 	Template templateModelLov;
 	
+	Template templateModelAbstractFactoryBase;
+	Template templateModelAbstractFactory;
 	
 	// Output Folder user model generated java source files
 	private String publicOutputDir;
@@ -49,12 +53,20 @@ public class XEOModelGenerator {
 		// Public java classes (visible and modifiable by the user)
 		modelGenerator.setPublicJavaPackage( "xeo.models" );
 		
+//		// Path of the output of the generated files 
+//		modelGenerator.setSourceInternalOutputDir( "/Users/jcarreira/Work/xeo/workspace/xwc_portal/xwc_portal/src-internal" );
+//		modelGenerator.setSourcePublicOutputDir( "/Users/jcarreira/Work/xeo/workspace/xwc_portal/xwc_portal/src-xeogen" );
+//		
+//		// Path to xeoHome
+//		modelGenerator.setXEOHome( "/Users/jcarreira/Work/xeo/workspace/xwc_portal/xwc_portal/" );
+
 		// Path of the output of the generated files 
-		modelGenerator.setSourceInternalOutputDir( "/Users/jcarreira/Work/xeo/workspace/xwc_portal/xwc_portal/src-internal" );
-		modelGenerator.setSourcePublicOutputDir( "/Users/jcarreira/Work/xeo/workspace/xwc_portal/xwc_portal/src-xeogen" );
+		modelGenerator.setSourceInternalOutputDir( "/Users/jcarreira/Work/xeo/workspace/xeoapi20_tests_app/src-internal" );
+		modelGenerator.setSourcePublicOutputDir( "/Users/jcarreira/Work/xeo/workspace/xeoapi20_tests_app/src-xeogen" );
 		
 		// Path to xeoHome
-		modelGenerator.setXEOHome( "/Users/jcarreira/Work/xeo/workspace/xwc_portal/xwc_portal/" );
+		modelGenerator.setXEOHome( "/Users/jcarreira/Work/xeo/workspace/xeoapi20_tests_app/" );
+		
 		
 		// Generate the source files
 		modelGenerator.generateFiles();
@@ -71,7 +83,13 @@ public class XEOModelGenerator {
 		templateModelFactoryBase = freemarkerConf.getTemplate( "ModelFactoryBase.jftl" );
 		templateModel = freemarkerConf.getTemplate( "Model.jftl" );
 		templateModelFactory = freemarkerConf.getTemplate( "ModelFactory.jftl" );
-		templateModelRegistry = freemarkerConf.getTemplate( "ModelRegistry.jftl" );
+		
+//		templateModelRegistry = freemarkerConf.getTemplate( "ModelRegistry.jftl" );
+		
+		templateModelFactoryRegistry = freemarkerConf.getTemplate( "ModelFactoryRegistry.jftl" );
+
+		templateModelAbstractFactory = freemarkerConf.getTemplate( "ModelAbstractFactory.jftl" );
+		templateModelAbstractFactoryBase = freemarkerConf.getTemplate( "ModelAbstractFactoryBase.jftl" );
 		
 		templateModelLov = freemarkerConf.getTemplate( "ModelLov.jftl" );
 	}
@@ -152,19 +170,22 @@ public class XEOModelGenerator {
 	
 	
 	private void generateXEOModelFactories( XEOModelDefBuilder modelDefBuilder ) throws Exception {
-		Map<String,Collection<XEOModelDef>> map = new HashMap<String, Collection<XEOModelDef>>();
-		map.put("root", modelDefBuilder.getModels() );
-
-		StringWriter out = new StringWriter();
-		try {
-			templateModelRegistry.process(  map, out);
-
-			File dir = (new File(internalOutputDir + convertPackageToPath( this.buildProperties.getJavaDictionaryPackage() )));
-			dir.mkdirs();
-			writeFile(dir.getAbsolutePath()  + File.separator +  "XEOModelFactories.java", out.getBuffer().toString() );
-		}
-		catch( IOException e ) {
-			throw new RuntimeException( e );
+		
+		Map<String,XEOModelDef> map = new HashMap<String, XEOModelDef>();
+		
+		for( XEOModelDef modelDef : modelDefBuilder.getModels() ) {
+			map.put("root", modelDef );
+			StringWriter out = new StringWriter();
+			try {
+				templateModelFactoryRegistry.process(  map, out);
+	
+				File dir = (new File(internalOutputDir + convertPackageToPath( "xeo.models.impl._factories" )));
+				dir.mkdirs();
+				writeFile(dir.getAbsolutePath()  + File.separator + modelDef.getJavaClassName() + "FactoryLocation.java", out.getBuffer().toString() );
+			}
+			catch( IOException e ) {
+				throw new RuntimeException( e );
+			}
 		}
 	}
 	
@@ -178,11 +199,25 @@ public class XEOModelGenerator {
 			System.out.println( modelDef.getModelName() );
 			
 			templateModelInterface.process(  map, out);
-
 			File dir = (new File(publicOutputDir + convertPackageToPath( modelDef.getJavaPackage() )));
 			dir.mkdirs();
-			
 			writeFile(dir.getAbsolutePath()  + File.separator + modelDef.getJavaClassName() + ".java", out.getBuffer().toString() );
+			
+			out = new StringWriter();
+			templateModelAbstractFactoryBase.process(  map, out);
+			File dirFactoryBase = (new File(internalOutputDir + convertPackageToPath( modelDef.getJavaBasePackage() )));
+			dirFactoryBase.mkdirs();
+			writeFile(dirFactoryBase.getAbsolutePath()  + File.separator + modelDef.getJavaClassName() + "FactoryBase.java", out.getBuffer().toString() );
+			
+			out = new StringWriter();
+			templateModelAbstractFactory.process(  map, out);
+			File dirFactory = (new File(publicOutputDir + convertPackageToPath( modelDef.getJavaPackage() )));
+			dirFactoryBase.mkdirs();
+			
+			File outFile = new File( dirFactory.getAbsolutePath()  + File.separator + modelDef.getJavaClassName() + "Factory.java" );
+			if( !outFile.exists() ) {
+				writeFile( outFile, out.getBuffer().toString() );
+			}
 			
 		}
 		catch( IOException e ) {

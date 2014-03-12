@@ -2,6 +2,7 @@ package ${root.javaBasePackage};
 
 import netgest.bo.runtime.boObject;
 import xeo.api.base.impl.XEOModelFactoryImpl;
+import xeo.api.base.XEOScope;
 import ${root.javaPackage}.${root.javaClassName};
 import ${root.javaPackage}.${root.javaClassName}Factory;
 <#list root.getJavaBaseImports() as import >
@@ -30,6 +31,10 @@ public abstract class ${root.javaClassName}FactoryBase<T extends ${root.javaClas
 	@Override
 	protected String getModelName() {
 		return MODEL_NAME;
+	}
+
+	public static ${root.javaClassName}Factory get() {
+		return XEOScope.getCurrentScope().getFactory( ${root.javaClassName}Factory.class );
 	}
 
 <#--
