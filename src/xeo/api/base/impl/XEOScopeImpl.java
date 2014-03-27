@@ -43,6 +43,8 @@ public class XEOScopeImpl extends XEOScope  {
 	private XEOScopePoolable        poolable = new XEOScopePoolable();
 	
 	private boolean			closed = false;
+	private boolean			wrapper = false;
+	
 	private StackTraceElement[] createIn = (new Throwable()).getStackTrace();
 	
 	
@@ -52,6 +54,7 @@ public class XEOScopeImpl extends XEOScope  {
 	
 	protected XEOScopeImpl( XEOSessionImpl session, boPoolable owner ) {
 		this.session = session;
+		this.wrapper = owner != null;
 		this.poolable.poolOwner = owner!=null?owner:this.poolable.poolOwner;
 	}
 	
@@ -371,7 +374,7 @@ public class XEOScopeImpl extends XEOScope  {
 	
 	@Override
 	protected void finalize() throws Throwable {
-		if( !this.closed ) {
+		if( !this.closed && !this.wrapper ) {
 			System.err.println( "XEOScope not closed" );
 			System.err.println( "Created in:" );
 			StringBuilder sb = new StringBuilder();

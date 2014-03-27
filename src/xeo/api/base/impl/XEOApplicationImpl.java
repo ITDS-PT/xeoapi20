@@ -23,11 +23,11 @@ public class XEOApplicationImpl extends XEOApplication {
 	}
 	
 	public XEOSession wrapSession( boSession bosession ) {
-		return new XEOSessionImpl(bosession);
+		return new XEOSessionImpl(bosession, true );
 	}
 	
 	public XEOSession wrapScope( boSession session, XTransactionManager transactionManager ) {
-		return new XEOSessionImpl( session, transactionManager );
+		return new XEOSessionImpl( session, transactionManager, true );
 	}
 
 	public XEOScope wrapScope( boSession session, XTransaction transaction ) {
@@ -36,7 +36,7 @@ public class XEOApplicationImpl extends XEOApplication {
 	
 	@Override
 	public XEOSession login(String userName, String password) throws boLoginException {
-		return new XEOSessionImpl( boapplication.boLogin( userName, password ) );
+		return new XEOSessionImpl( boapplication.boLogin( userName, password ), false );
 	}
 
 

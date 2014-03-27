@@ -57,6 +57,9 @@ public abstract class XEOModelFactoryImpl<T extends XEOModelBase> extends XEOMod
 			model = wrapObject( boobject.getBoui() );
 			model.boobject = new WeakReference<boObject>( boobject );
 		}
+		else if( model.boobject.get() != boobject ) {
+			model.boobject = new WeakReference<boObject>( boobject );
+		}
 		return model;
 	}
 	

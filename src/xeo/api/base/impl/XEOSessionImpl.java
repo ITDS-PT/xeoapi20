@@ -28,16 +28,19 @@ public class XEOSessionImpl extends boPoolable implements XEOSession, boPoolOwne
 	private boPoolable  poolOwner = this;
 	
 	private boolean     closed = false;
+	private boolean 	isWrapper = false;
 	
 	private StackTraceElement[] createIn = (new Throwable()).getStackTrace();
 	
-	protected XEOSessionImpl( boSession bosession ) {
+	protected XEOSessionImpl( boSession bosession, boolean wrapper ) {
 		this.bosession = bosession;
+		this.isWrapper = wrapper;
 	}
 
-	protected XEOSessionImpl( boSession bosession, boPoolable owner ) {
+	protected XEOSessionImpl( boSession bosession, boPoolable owner, boolean wrapper ) {
 		this.bosession = bosession;
 		this.poolOwner = owner;
+		this.isWrapper = wrapper;
 	}
 	
 	@Override
@@ -234,7 +237,7 @@ public class XEOSessionImpl extends boPoolable implements XEOSession, boPoolOwne
 	
 	@Override
 	protected void finalize() throws Throwable {
-		if( !this.closed ) {
+		if( !this.closed && !this.isWrapper ) {
 			System.err.println( "XEOSession not closed" );
 			System.err.println( "Created in:" );
 			StringBuilder sb = new StringBuilder();
