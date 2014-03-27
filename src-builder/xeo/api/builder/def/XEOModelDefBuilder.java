@@ -198,7 +198,14 @@ public class XEOModelDefBuilder {
 				String staticName =  XEONamesBeautifier.convertStaticFieldName( item.getLabel() );
 				// If the label is duplicated, add a $ and the value two create unique identifier
 				if( duplicatedLabels.indexOf( staticName ) != -1 ) {
-					staticName +=  "$" + item.getValue();
+					staticName = staticName + "$" + XEONamesBeautifier.convertStaticFieldName( item.getValue() );
+					String tryStaticName = staticName;
+					int i = 1;
+					while( allLabels.indexOf( tryStaticName ) != -1 ) {
+						tryStaticName = staticName += "$" + (i++);
+					}
+					staticName = tryStaticName;
+					allLabels.add( staticName );
 				}
 				item.setJavaNames( staticName );
 			}
@@ -1049,11 +1056,26 @@ public class XEOModelDefBuilder {
 	
 	private void isFinalAttribute( DependencieTree treeNode, XEOAttributeDef attDef ) {
 		
+		if( treeNode.model.getModelName().equals( "Teste" ) && attDef.getModelName().equals("Object") ) {
+			System.out.println( "debug" );
+		}
+		
 		for( DependencieTree child : treeNode.childs ) {
 			for( XEOAttributeDef childAtt : child.model.getAllAttributes() ) {
 				if( childAtt.getJavaAttributeGetterName().equals( attDef.getJavaAttributeGetterName() ) ) {
-					attDef.setFinal( false );
-					return;
+					if( !childAtt.getJavaValueClass().equals( attDef.getJavaValueClass() ) ) {
+						attDef.setFinal( false );
+						return;
+					}
+					else {
+						if( childAtt instanceof XEOAttributeObjectDef ) {
+							if (((XEOAttributeObjectDef)attDef).getReferencedModel() != 
+									((XEOAttributeObjectDef)childAtt).getReferencedModel()) {
+								attDef.setFinal( false );
+								return;
+							}
+						}
+					}
 				}
 			}
 			isFinalAttribute( child, attDef );
