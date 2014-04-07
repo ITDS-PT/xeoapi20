@@ -351,10 +351,6 @@ public abstract class ${root.javaBaseClassName} extends ${root.super.javaClassNa
 		super.factory = factory;
 	}
 
-	protected void wrapObject( boObject boobject ) {
-		this.boobject = new WeakReference<boObject>( boobject );
-	}
-	
 	<#if (root.getAllAttributes()?size > 0) >
 	@Override
 	protected JSONObject toJSONObject() {
@@ -420,5 +416,22 @@ public abstract class ${root.javaBaseClassName} extends ${root.super.javaClassNa
 	</#if>
 	</#list>
 	
-
+	@Override
+	public void reBindToBoObject() {
+		super.reBindToBoObject();
+			// Simple Attributes
+		<#list root.getAttributes() as attribute>
+			_${attribute.javaFieldName} = null;
+		</#list>
+			
+			// Object Attributes
+		<#list root.getAttributesObject() as attributeObject>
+			_${attributeObject.javaFieldName} = null;
+		</#list>
+			
+			// Object Collections
+		<#list root.getBridges() as bridge>
+			_${bridge.javaFieldName} = null;
+		</#list>	
+	}
 }

@@ -55,10 +55,10 @@ public abstract class XEOModelFactoryImpl<T extends XEOModelBase> extends XEOMod
 		XEOModelImpl model = scope.findLoadedXEOModel( boobject.getBoui() );
 		if( model == null ) {
 			model = wrapObject( boobject.getBoui() );
-			model.boobject = new WeakReference<boObject>( boobject );
+			model.wrapObject( boobject );
 		}
-		else if( model.boobject.get() != boobject ) {
-			model.boobject = new WeakReference<boObject>( boobject );
+		else if( model.boobject == null || model.boobject.get() != boobject ) {
+			model.wrapObject( boobject );
 		}
 		return model;
 	}

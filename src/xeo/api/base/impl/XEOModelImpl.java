@@ -10,6 +10,7 @@ import java.util.List;
 import netgest.bo.runtime.AttributeHandler;
 import netgest.bo.runtime.boObject;
 import netgest.bo.runtime.boRuntimeException;
+import netgest.bo.system.boApplication;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -27,7 +28,7 @@ import xeo.api.base.exceptions.XEOReferenceViolationException;
 import xeo.api.base.exceptions.XEORuntimeException;
 
 public  class XEOModelImpl implements XEOModelBase {
-
+	
 	protected WeakReference<boObject> boobject;
 	protected Long boui;
 	protected XEOModelFactoryImpl<? extends XEOModelBase> factory;
@@ -37,6 +38,7 @@ public  class XEOModelImpl implements XEOModelBase {
 	private Parameters 	parametersHandler = new ParametersImpl();
 	private Parent 		parentHandler = new ParentImpl();
 	
+	private boolean isBindedToBoObject = false;
 
 	public static final String[] ATTRIBUTES_NAMES = new String[0];
 
@@ -45,17 +47,29 @@ public  class XEOModelImpl implements XEOModelBase {
 	public class Attributes {
 	}
 	
-	protected void wrapObject(Long boui) {
+	protected final void wrapObject(Long boui) {
 		this.boui = boui;
+		if( this.boobject != null ) {
+			this.isBindedToBoObject = true;
+			this.boobject = null;
+		}
+		this.boobject = null;
 	}
 
-	protected void wrapObject(boObject boobject) {
+	protected final void wrapObject(boObject boobject) {
 		this.boui = boobject.getBoui();
 		this.boobject = new WeakReference<boObject>(boobject);
+		if( isBindedToBoObject ) {
+			reBindToBoObject();
+		}
+		isBindedToBoObject = true;
 	}
 
 	protected final void inititalizeBoObject() {
 		if( !isInitialized() ) {
+			if( isBindedToBoObject ) {
+				reBindToBoObject();
+			}
 			try {
 				this.boobject = new WeakReference<boObject>(
 					((XEOScopeImpl) this.factory.getScope()).getBoManager()
@@ -86,13 +100,24 @@ public  class XEOModelImpl implements XEOModelBase {
 				throw new RuntimeException( sb.toString(), e );
 			}
 		}
+		isBindedToBoObject = true;
 	}
 	
-	protected final boolean isInitialized() {
+	private final boolean isInitialized() {
 		if (this.boobject == null || this.boobject.get() == null
-				|| this.boobject.get().getEboContext() == null) {
+				|| this.boobject.get().getEboContext() == null ) {
 			return false;
 		}
+		
+		// Check if the object still exists in the pool
+		// if not update the reference.
+		Object objectInPool = 
+				boApplication.getXEO().getMemoryArchive().getPoolManager().getObjectById( this.boobject.get().poolUniqueId() );
+		
+		if( objectInPool != this.boobject.get() ) {
+			return false;
+		}
+		
 		return true;
 	}
 	
@@ -576,4 +601,11 @@ public  class XEOModelImpl implements XEOModelBase {
 	public Parent parent() {
 		return parentHandler;
 	}
+	
+	protected void reBindToBoObject(  ) {
+		errorsHandler = new ErrorsImpl();
+		parametersHandler = new ParametersImpl();
+		parentHandler = new ParentImpl();
+	}
+	
 }

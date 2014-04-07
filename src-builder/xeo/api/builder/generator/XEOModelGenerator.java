@@ -42,34 +42,34 @@ public class XEOModelGenerator {
 	private String encoding;
 	
 	public static void main(String[] args) throws Exception {
-		if (args==null || args.length==0 || args.length<6) {
-    		System.out.print("Usage: XEOModelGenerator [INTERNALJAVAPACKAGE] [PUBLICJAVAPACKACE] [INTERNALOUTDIR] [PUBLICOUTDIR] [XEOHOME] [SRCENCODING]");
-    		System.exit(0);
-    	}
+
+//		if (args==null || args.length==0 || args.length<6) {
+//    		System.out.print("Usage: XEOModelGenerator [INTERNALJAVAPACKAGE] [PUBLICJAVAPACKACE] [INTERNALOUTDIR] [PUBLICOUTDIR] [XEOHOME] [SRCENCODING]");
+//    		System.exit(0);
+//    	}
 		
 		// Example of use
 		XEOModelGenerator modelGenerator = new XEOModelGenerator();
 		
 		// Packages of classes generated
 		// Internal java classes (not visible to the user)
-		//modelGenerator.setInternalJavaPackage( "xeo.models.impl" );
+		modelGenerator.setInternalJavaPackage( "xeo.models.impl" );
+//		modelGenerator.setInternalJavaPackage( args[0] );
 		
-		modelGenerator.setInternalJavaPackage( args[0] );
 		// Public java classes (visible and modifiable by the user)
-		//modelGenerator.setPublicJavaPackage( "xeo.models" );
-		
-		modelGenerator.setPublicJavaPackage( args[1] );
+		modelGenerator.setPublicJavaPackage( "xeo.models" );
+//		modelGenerator.setPublicJavaPackage( args[1] );
 		
 		// Path of the output of the generated files 
-		//modelGenerator.setSourceInternalOutputDir( "/Users/jcarreira/Work/xeo/workspace/xeoapi20_tests_app/src-internal" );
-		//modelGenerator.setSourcePublicOutputDir( "/Users/jcarreira/Work/xeo/workspace/xeoapi20_tests_app/src-xeogen" );
-		modelGenerator.setSourceInternalOutputDir(  args[2] );
-		modelGenerator.setSourcePublicOutputDir(  args[3]  );
+		modelGenerator.setSourceInternalOutputDir( "/Users/jcarreira/Work/xeo/workspace/xeoapi20_tests_app/src-internal" );
+		modelGenerator.setSourcePublicOutputDir( "/Users/jcarreira/Work/xeo/workspace/xeoapi20_tests_app/src-xeogen" );
+//		modelGenerator.setSourceInternalOutputDir(  args[2] );
+//		modelGenerator.setSourcePublicOutputDir(  args[3]  );
 		// Path to xeoHome
-		//modelGenerator.setXEOHome( "/Users/jcarreira/Work/xeo/workspace/xeoapi20_tests_app/" );
-		modelGenerator.setXEOHome( args[4] );
+		modelGenerator.setXEOHome( "/Users/jcarreira/Work/xeo/workspace/xeoapi20_tests_app/" );
+//		modelGenerator.setXEOHome( args[4] );
 		
-		modelGenerator.setSourceEncoding( args[5] );
+//		modelGenerator.setSourceEncoding( args[5] );
 		
 		// Generate the source files
 		modelGenerator.generateFiles();
