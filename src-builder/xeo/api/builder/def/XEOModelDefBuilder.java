@@ -1056,10 +1056,6 @@ public class XEOModelDefBuilder {
 	
 	private void isFinalAttribute( DependencieTree treeNode, XEOAttributeDef attDef ) {
 		
-		if( treeNode.model.getModelName().equals( "Teste" ) && attDef.getModelName().equals("Object") ) {
-			System.out.println( "debug" );
-		}
-		
 		for( DependencieTree child : treeNode.childs ) {
 			for( XEOAttributeDef childAtt : child.model.getAllAttributes() ) {
 				if( childAtt.getJavaAttributeGetterName().equals( attDef.getJavaAttributeGetterName() ) ) {

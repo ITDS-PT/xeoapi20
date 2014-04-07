@@ -1,6 +1,5 @@
 package xeo.api.base.impl;
 
-import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.util.Map;
 
