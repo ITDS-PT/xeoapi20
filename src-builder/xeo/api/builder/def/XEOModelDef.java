@@ -25,6 +25,7 @@ public class XEOModelDef implements Cloneable {
 	
 	private List<String>						javaImports 	 = new ArrayList<String>();
 	private List<String>						javaBaseImports  = new ArrayList<String>();
+	private List<XEOMethodDef>					methods  		 = new ArrayList<XEOMethodDef>();
 	
 	private String modelName;
 	private String modelPackage;
@@ -57,6 +58,10 @@ public class XEOModelDef implements Cloneable {
 		this.superModelDef = superModelDef;
 	}
 
+	void addMethod( XEOMethodDef method ) {
+		this.methods.add( method );
+	}
+	
 	void addInterface( XEOModelDef interfaceModelDef ) {
 		if( !this.interfaces.contains( interfaceModelDef ) ) {
 			this.interfaces.add( interfaceModelDef );
@@ -65,6 +70,10 @@ public class XEOModelDef implements Cloneable {
 	
 	public List<XEOModelDef> getImplementedInterfaces() {
 		return this.interfaces;
+	}
+	
+	public List<XEOMethodDef> getMethods() {
+		return methods;
 	}
 	
 	public String getJavaClassName() {

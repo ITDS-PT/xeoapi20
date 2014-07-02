@@ -21,6 +21,7 @@ import netgest.bo.def.boDefAttribute;
 import netgest.bo.def.boDefBridge;
 import netgest.bo.def.boDefHandler;
 import netgest.bo.def.boDefInterface;
+import netgest.bo.def.boDefMethod;
 import netgest.bo.def.boDefUtils;
 import netgest.bo.localizations.MessageLocalizer;
 import netgest.bo.system.boApplication;
@@ -34,6 +35,7 @@ import oracle.xml.parser.v2.XSLException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import xeo.api.builder.def.XEOMethodDef.XEOMethodArgument;
 import xeo.api.builder.def.XEOModelDef.ModelType;
 import xeo.api.builder.def.XEOTypes.SimpleDataType;
 import xeo.api.builder.generator.XEONamesBeautifier;
@@ -319,6 +321,13 @@ public class XEOModelDefBuilder {
 			}
 		}
 		
+		// Build the methods
+		for (XEOModelDef modelDef : modelsDef.values()) {
+			boDefHandler defHandler = bodefMap.get(modelDef.getModelName());
+			buildMethods(modelDef, defHandler);
+		}
+		
+		
 		// Inherit the attributes from the interfaces
 		for (XEOModelDef modelDef : modelsDef.values()) {
 			boDefHandler defHandler = bodefMap.get(modelDef.getModelName());
@@ -577,6 +586,43 @@ public class XEOModelDefBuilder {
 				}
 			}
 		}
+	}
+	
+	private void buildMethods( XEOModelDef modelDef, boDefHandler defHandler ) {
+		boDefMethod[] methods = defHandler.getBoMethods();
+		for( boDefMethod method : methods ) {
+			if( !method.getIsNative() ) {
+				
+				String returnType = method.getReturnType();
+				String javaObjectReturnType = returnType;
+				if( "int".equals(returnType)  )
+					javaObjectReturnType = "Integer";
+				if( "float".equals(returnType)  )
+					javaObjectReturnType = "Float";
+				if( "double".equals(returnType)  )
+					javaObjectReturnType = "Double";
+				if( "boolean".equals(returnType)  )
+					javaObjectReturnType = "Boolean";
+				if( "byte".equals(returnType)  )
+					javaObjectReturnType = "Byte";
+				if( "short".equals(returnType)  )
+					javaObjectReturnType = "Short";
+				if( "long".equals(returnType)  )
+					javaObjectReturnType = "Long";
+				if( "char".equals(returnType)  )
+					javaObjectReturnType = "Char";
+				
+				XEOMethodDef methodDef = new XEOMethodDef( method.getName(), method.getReturnType(), javaObjectReturnType );
+				String[] argClasses = method.getAssinatureClassNames();
+				String[] argNames = method.getAssinatureArgNames();
+				for(int i=0; i < argClasses.length; i++  ) {
+					XEOMethodDef.XEOMethodArgument arg = new XEOMethodArgument(argNames[i], argClasses[i]);
+					methodDef.addArgument( arg );
+				}
+				modelDef.addMethod( methodDef );
+			}
+		}
+		
 	}
 	
 	private void buildAttributes( XEOModelDef modelDef, boDefHandler defHandler ) {

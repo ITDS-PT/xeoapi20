@@ -434,4 +434,22 @@ public abstract class ${root.javaBaseClassName} extends ${root.super.javaClassNa
 			_${bridge.javaFieldName} = null;
 		</#list>	
 	}
+	
+	<#list root.getMethods() as method><#assign appendComma=false>
+	public ${method.returnType} ${method.name}( <#list method.getArguments() as arg>${arg.argClassName} ${arg.argName}<#if appendComma>,</#if><#assign appendComma=true></#list> ) {
+		try {
+			inititalizeBoObject();
+			boObject thisObj = unWrap();
+			Object ret = thisObj.getClass().getMethod( "${method.name}" ).invoke( thisObj );
+			<#if method.returnType != "void">
+			return (${method.javaObjectReturnType})ret;
+			</#if>
+		}
+		catch( Exception e ) {
+			throw new RuntimeException(e);
+		}
+	}
+	</#list>
+	
+	
 }
