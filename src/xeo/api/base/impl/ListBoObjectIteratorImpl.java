@@ -1,5 +1,6 @@
 package xeo.api.base.impl;
 
+import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -12,7 +13,7 @@ public class ListBoObjectIteratorImpl<T extends XEOModelBase> implements Iterato
 
 	boObjectList boobjectList;
 	XEOScope	 scope;
-	int index;
+	int 		 index	= 0;
 	
 	public ListBoObjectIteratorImpl(boObjectList boobjectList, XEOScope scope) {
 		this.scope = scope;
@@ -22,18 +23,24 @@ public class ListBoObjectIteratorImpl<T extends XEOModelBase> implements Iterato
 	@Override
 	public boolean hasNext() {
 		boolean ret = index < boobjectList.getRowCount();
-		return ret || boobjectList.haveMorePages();
+		if( !ret ) {
+			ret = boobjectList.haveMorePages();
+		}
+		return ret;
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public T next() {
 		if( hasNext() ) {
-			if( index >= boobjectList.getRowCount() ) {
-				this.boobjectList.nextPage();
-				index = 0;
-			}
 			index++;
+			if( index > boobjectList.getRowCount() ) {
+				this.boobjectList.nextPage();
+				if ( this.boobjectList.getRowCount() <= 0 ) {
+					throw new ConcurrentModificationException();					
+				}
+				index = 1;
+			}
 			this.boobjectList.moveTo( index );
 			try {
 				// Optimized for preload objects
