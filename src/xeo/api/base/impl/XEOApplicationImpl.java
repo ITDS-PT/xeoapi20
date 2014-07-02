@@ -1,5 +1,7 @@
 package xeo.api.base.impl;
 
+import java.util.WeakHashMap;
+
 import netgest.bo.runtime.EboContext;
 import netgest.bo.runtime.boObject;
 import netgest.bo.system.boApplication;
@@ -16,6 +18,9 @@ import xeo.api.base.impl.XEOScopeImpl.XEOScopePoolable;
 
 public class XEOApplicationImpl extends XEOApplication {
 
+	
+	private static final WeakHashMap<EboContext, XEOScope> wrappedScopes = new WeakHashMap<EboContext, XEOScope>();
+	
 	boApplication boapplication;
 	
 	public XEOApplicationImpl() {
@@ -50,7 +55,18 @@ public class XEOApplicationImpl extends XEOApplication {
 			return ((XEOScopePoolable)poolOwner).getScope();
 		}
 		else {
-			return new XEOScopeImpl( (XEOSessionImpl)wrapSession( eboContext.getBoSession() ), poolOwner );
+			XEOScope scope = wrappedScopes.get( eboContext );
+			if( scope == null ) {
+				synchronized(XEOApplication.class) {
+					scope = new XEOScopeEboContextWrapper(
+							(XEOSessionImpl)wrapSession( eboContext.getBoSession() ), 
+							poolOwner, 
+							eboContext
+					);
+					wrappedScopes.put(eboContext, scope );
+				}
+			}
+			return scope;
 		}
 	}
 	
