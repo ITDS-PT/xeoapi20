@@ -54,7 +54,12 @@ public interface XEOModelBase {
 	public boolean 		exists();
 	
 	public interface Errors {
+		
 		public void addErrorMessage(String errorMessage);
+		
+		public void addErrorMessage( XEOAttribute<?> attribute, String errorMessage );
+		public void addErrorMessage( String attributeName, String errorMessage );
+		
 		public List<String> errorMessages();
 		
 		public boolean hasErrors();
@@ -66,6 +71,7 @@ public interface XEOModelBase {
 		public void    clearAttributeErrors();
 		
 		public List<XEOAttribute<?>> attributesInError();
+		
 	}
 	
 	public interface Parameters {
