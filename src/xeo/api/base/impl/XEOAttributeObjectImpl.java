@@ -49,6 +49,9 @@ public class XEOAttributeObjectImpl<T extends XEOModelBase> extends XEOAttribute
 			if( value != null ) {
 				attributeHandler.setValueLong( value.getBoui() );
 			}
+			else {
+				attributeHandler.setValueObject( null );
+			}
 		} catch (boRuntimeException e) {
 			throw new RuntimeException(e);
 		}
