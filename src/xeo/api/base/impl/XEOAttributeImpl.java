@@ -39,22 +39,24 @@ public class XEOAttributeImpl<T> implements XEOAttribute<T> {
 
 	@Override
 	public boolean isEmpty() {
-		Object value = getValue();
 		
-		if( value == null )
-			return true;
-		
-		if( 
-				value.equals( DEFAULT_STRING ) ||  
-				value.equals( DEFAULT_DOUBLE ) ||  
-				value.equals( DEFAULT_BIGDECIMAL ) ||  
-				value.equals( DEFAULT_LONG ) ||  
-				value.equals( DEFAULT_BOOLEAN )  
-		) {
-			return true;
+		try {
+			Object value = attributeHandler.getValueObject();
+			
+			if( value == null )
+				return true;
+			
+			if( 
+					value.equals( DEFAULT_STRING )  
+			) {
+				return true;
+			}
+			
+			return false;
 		}
-		
-		return false;
+		catch( boRuntimeException e ) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Override
