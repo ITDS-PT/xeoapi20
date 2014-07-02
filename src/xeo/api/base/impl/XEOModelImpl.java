@@ -415,7 +415,21 @@ public  class XEOModelImpl implements XEOModelBase {
 			inititalizeBoObject();
 			boobject.get().addErrorMessage(errorMessage);
 		}
+		
+		
+		@Override
+		public void addErrorMessage(XEOAttribute<?> attribute, String errorMessage) {
+			inititalizeBoObject();
+			addErrorMessage(attribute.getName(), errorMessage);
+		}
 
+		@Override
+		public void addErrorMessage(String attributeName, String errorMessage) {
+			inititalizeBoObject();
+			boObject _boobject = boobject.get();
+			_boobject.addErrorMessage( _boobject.getAttribute(attributeName) , errorMessage );
+		}
+		
 		/**
 		 * 
 		 * Checks whether the instance has errors (either object or attribute
