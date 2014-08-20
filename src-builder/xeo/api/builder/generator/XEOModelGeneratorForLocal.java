@@ -13,12 +13,21 @@ public class XEOModelGeneratorForLocal {
 		// Public java classes (visible and modifiable by the user)
 		modelGenerator.setPublicJavaPackage( "xeo.models" );
 		
-		// Path of the output of the generated files 
+		// Path of the output of the generated files
+		
 		modelGenerator.setSourceInternalOutputDir( "/Users/jcarreira/Work/xeo/workspace/xeoapi20_tests_app/src-internal" );
 		modelGenerator.setSourcePublicOutputDir( "/Users/jcarreira/Work/xeo/workspace/xeoapi20_tests_app/src-xeogen" );
 
 		// Path to xeoHome
 		modelGenerator.setXEOHome( "/Users/jcarreira/Work/xeo/workspace/xeoapi20_tests_app/" );
+		
+		
+//		modelGenerator.setSourceInternalOutputDir( "/Users/jcarreira/Work/xeo/workspace/checkin/src-internal" );
+//		modelGenerator.setSourcePublicOutputDir( "/Users/jcarreira/Work/xeo/workspace/checkin/src-xeogen" );
+//
+//		// Path to xeoHome
+//		modelGenerator.setXEOHome( "/Users/jcarreira/Work/xeo/workspace/checkin/" );
+		
 		
 		// Generate the source files
 		modelGenerator.generateFiles();

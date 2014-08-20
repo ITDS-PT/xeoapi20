@@ -23,6 +23,7 @@ import netgest.bo.def.boDefHandler;
 import netgest.bo.def.boDefInterface;
 import netgest.bo.def.boDefMethod;
 import netgest.bo.def.boDefUtils;
+import netgest.bo.def.v2.boDefHandlerImpl;
 import netgest.bo.localizations.MessageLocalizer;
 import netgest.bo.system.boApplication;
 import netgest.utils.StringUtils;
@@ -30,6 +31,7 @@ import netgest.utils.ngtXMLHandler;
 import netgest.utils.ngtXMLUtils;
 import oracle.xml.parser.v2.XMLDocument;
 import oracle.xml.parser.v2.XMLElement;
+import oracle.xml.parser.v2.XMLNode;
 import oracle.xml.parser.v2.XSLException;
 
 import org.w3c.dom.Node;
@@ -294,6 +296,7 @@ public class XEOModelDefBuilder {
 
 		// Associate the interface to the model for all declared models in the interface 
 		for (XEOModelDef modelDef : modelsDef.values()) {
+			
 			boDefHandler defHandler = bodefMap.get(modelDef.getModelName());
 			String[] implementedInterfaces = defHandler.getImplements();
 			for( String interfaceName : implementedInterfaces ) {
@@ -309,15 +312,33 @@ public class XEOModelDefBuilder {
 		for (XEOModelDef modelDef : modelsDef.values()) {
 			if( modelDef.getModelType() == ModelType.INTERFACE ) {
 				boDefInterface defHandler = (boDefInterface)bodefMap.get(modelDef.getModelName());
-				String[] modelNamesImplementing = defHandler.getImplObjects();
-				if( modelNamesImplementing != null ) {
-					for( String modelNameImplementing : modelNamesImplementing ) {
-						XEOModelDef modeImplementingDef = modelsDef.get( modelNameImplementing );
-						if( modeImplementingDef != null ) {
-							modeImplementingDef.addInterface( modelDef );
-						}
-					}
-				}
+				
+				// O modelDef só devolve os interfaces que estão deployed... mas que existam na pasta bodef..
+				// workaround
+				ngtXMLHandler general = ((boDefHandlerImpl)defHandler).getXmlNode().getChildNode("general");
+                if(general != null)
+                {
+                    ngtXMLHandler objects = general.getChildNode( "objects" );
+                    if( objects != null ) {
+	                    ngtXMLHandler[] object = objects.getChildNodes();
+	                    for( ngtXMLHandler inter : object ) {
+	                    	String modelNameImplementing = inter.getText();
+	                    	XEOModelDef modeImplementingDef = modelsDef.get( modelNameImplementing );
+							if( modeImplementingDef != null ) {
+								modeImplementingDef.addInterface( modelDef );
+							}
+	                    }
+                    }
+                }
+//				String[] modelNamesImplementing = defHandler.getDeclaredImplObjects();
+//				if( modelNamesImplementing != null ) {
+//					for( String modelNameImplementing : modelNamesImplementing ) {
+//						XEOModelDef modeImplementingDef = modelsDef.get( modelNameImplementing );
+//						if( modeImplementingDef != null ) {
+//							modeImplementingDef.addInterface( modelDef );
+//						}
+//					}
+//				}
 			}
 		}
 		

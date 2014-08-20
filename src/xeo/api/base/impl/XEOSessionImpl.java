@@ -222,6 +222,9 @@ public class XEOSessionImpl extends boPoolable implements XEOSession, boPoolOwne
 			boApplication.currentContext().addEboContext( myScopeEboContext.get() );
 			scopeEboContext = myScopeEboContext.get();
 		}
+		else {
+			myScopeEboContext.set( scopeEboContext );
+		}
 		
 		return scopeEboContext;
 	}
