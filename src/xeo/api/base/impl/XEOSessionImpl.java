@@ -154,13 +154,18 @@ public class XEOSessionImpl extends boPoolable implements XEOSession, boPoolOwne
     
     @Override
     public void close() {
+    	this.release( true );
         this.bosession.closeSession();
         this.closed = true;
     }
     
     public void release() {
+    	release( false );
+    }
+    
+    
+    private void release( boolean toClose ) {
 		checkClosed();
-
         EboContext      oEboContext = getEboContext();
         if( oEboContext != null ) {
 	        boApplication   boApp        = oEboContext.getApplication();
@@ -172,13 +177,21 @@ public class XEOSessionImpl extends boPoolable implements XEOSession, boPoolOwne
 	        	ArrayList<XEOScopeImpl> l = requestTransids.get( oEboContext.poolUniqueId() );
 	        	if( l != null  ) {
 	        		for (XEOScopeImpl sTransId : l) {
-	        			sTransId.release();
+	        			if( !sTransId.isClosed() )
+	        				if( toClose )
+	        					sTransId.close();
+	        				else
+	        					sTransId.release();
 	        		}
 	        	}
 			} finally {
 	        	oEboContext.setPreferredPoolObjectOwner( sLastPoolOwner );
 			}
-	        boPoolMgr.realeaseObjects(this.poolOwner.poolUniqueId(), oEboContext);
+	        if( toClose )
+	        	boPoolMgr.realeaseAllObjects(this.poolOwner.poolUniqueId());
+	        else
+	        	boPoolMgr.realeaseObjects(this.poolOwner.poolUniqueId(), oEboContext);
+	        	
         }
         
 		if( this.myScopeEboContext.get() != null ) {
@@ -221,9 +234,6 @@ public class XEOSessionImpl extends boPoolable implements XEOSession, boPoolOwne
 			myScopeEboContext.set( this.bosession.createEboContext() );
 			boApplication.currentContext().addEboContext( myScopeEboContext.get() );
 			scopeEboContext = myScopeEboContext.get();
-		}
-		else {
-			myScopeEboContext.set( scopeEboContext );
 		}
 		
 		return scopeEboContext;

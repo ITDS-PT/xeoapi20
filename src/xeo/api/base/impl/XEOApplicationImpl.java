@@ -60,7 +60,7 @@ public class XEOApplicationImpl extends XEOApplication {
 				synchronized(XEOApplication.class) {
 					scope = new XEOScopeEboContextWrapper(
 							(XEOSessionImpl)wrapSession( eboContext.getBoSession() ), 
-							poolOwner, 
+							poolOwner==null?eboContext:poolOwner, 
 							eboContext
 					);
 					wrappedScopes.put(eboContext, scope );

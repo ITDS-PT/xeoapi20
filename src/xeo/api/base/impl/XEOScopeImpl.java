@@ -159,6 +159,8 @@ public class XEOScopeImpl extends XEOScope  {
 	public void close() {
 		if( !this.closed ) {
 			this.flush();
+			boPoolManager poolManager = this.session.bosession.getApplication().getMemoryArchive().getPoolManager();
+			poolManager.destroyObject( this.poolable );
 			this.closed = true;
 		}
 	}
@@ -345,7 +347,6 @@ public class XEOScopeImpl extends XEOScope  {
 
 	@Override
 	public void release() {
-		checkClosed();
 		EboContext eboContext = getEboContext();
 		String lastOwner = eboContext.getPreferredPoolObjectOwner();
 		try {
@@ -387,7 +388,7 @@ public class XEOScopeImpl extends XEOScope  {
 	
 	public class XEOScopePoolable extends boPoolable implements boPoolOwner {
 		
-		private boPoolable		poolOwner = this;
+		protected boPoolable		poolOwner = this;
 		
 		@Override
 		public EboContext getEboContext() {

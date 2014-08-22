@@ -1,5 +1,6 @@
 package xeo.api.base.impl;
 
+import java.util.Hashtable;
 import java.util.Map;
 
 import netgest.bo.runtime.EboContext;
@@ -14,22 +15,37 @@ public class XEOScopeEboContextWrapper extends XEOScopeImpl {
 	private EboContext 		eboContext;
 	private XEOScopeImpl  	scope;
 	
+	private Hashtable<String, XEOScopeImpl> contextOwners = new Hashtable<String, XEOScopeImpl>(); 
+	
 	protected XEOScopeEboContextWrapper( XEOSessionImpl session, boPoolable owner, EboContext context ) {
 		super( session , owner);
 		this.eboContext = context;
 	}
 	
 	private void validateScope() {
-		boPoolable poolOwner =  eboContext.getBoSession().getApplication().getMemoryArchive().getPoolManager()
-				.getObjectById( eboContext.getPreferredPoolObjectOwner() );
+		
+		this.scope  = contextOwners.get(  eboContext.getPreferredPoolObjectOwner() );
+		if( this.scope == null ) {
+			boPoolable poolOwner =  eboContext.getBoSession().getApplication().getMemoryArchive().getPoolManager()
+					.getObjectById( eboContext.getPreferredPoolObjectOwner() );
+
+			if( poolOwner == null ) {
+				throw new IllegalStateException( 
+					String.format("Preferred Owner %s no longer exists. Viewer/Transaction already closed or remove from pool!", eboContext.getPreferredPoolObjectOwner() ) 
+				);
+			}
+				
+			if( poolOwner instanceof XEOScopePoolable ) {
+				this.scope = ((XEOScopePoolable)poolOwner).getScope(); 
+			}
+			else {
+				this.scope = new XEOScopeImpl( (XEOSessionImpl)
+						XEOApplication.getInstance().wrapSession( eboContext.getBoSession() ), poolOwner 
+				);
+			}
 			
-		if( poolOwner instanceof XEOScopePoolable ) {
-			this.scope = ((XEOScopePoolable)poolOwner).getScope(); 
-		}
-		else {
-			this.scope = new XEOScopeImpl( (XEOSessionImpl)
-					XEOApplication.getInstance().wrapSession( eboContext.getBoSession() ), poolOwner 
-			);
+			contextOwners.put(eboContext.getPreferredPoolObjectOwner(),  this.scope );
+			
 		}
 	}
 	
