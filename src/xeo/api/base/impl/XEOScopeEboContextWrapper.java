@@ -29,12 +29,18 @@ public class XEOScopeEboContextWrapper extends XEOScopeImpl {
 			boPoolable poolOwner =  eboContext.getBoSession().getApplication().getMemoryArchive().getPoolManager()
 					.getObjectById( eboContext.getPreferredPoolObjectOwner() );
 
+			if ( eboContext.poolUniqueId().equals( eboContext.getPreferredPoolObjectOwner() ) ) {
+				poolOwner = eboContext;
+				this.scope = new XEOScopeImpl( (XEOSessionImpl)
+						XEOApplication.getInstance().wrapSession( eboContext.getBoSession() ), eboContext 
+				);
+			}
+			
 			if( poolOwner == null ) {
 				throw new IllegalStateException( 
 					String.format("Preferred Owner %s no longer exists. Viewer/Transaction already closed or remove from pool!", eboContext.getPreferredPoolObjectOwner() ) 
 				);
 			}
-				
 			if( poolOwner instanceof XEOScopePoolable ) {
 				this.scope = ((XEOScopePoolable)poolOwner).getScope(); 
 			}
@@ -43,7 +49,6 @@ public class XEOScopeEboContextWrapper extends XEOScopeImpl {
 						XEOApplication.getInstance().wrapSession( eboContext.getBoSession() ), poolOwner 
 				);
 			}
-			
 			contextOwners.put(eboContext.getPreferredPoolObjectOwner(),  this.scope );
 			
 		}
