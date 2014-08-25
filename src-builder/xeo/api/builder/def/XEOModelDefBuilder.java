@@ -31,7 +31,6 @@ import netgest.utils.ngtXMLHandler;
 import netgest.utils.ngtXMLUtils;
 import oracle.xml.parser.v2.XMLDocument;
 import oracle.xml.parser.v2.XMLElement;
-import oracle.xml.parser.v2.XMLNode;
 import oracle.xml.parser.v2.XSLException;
 
 import org.w3c.dom.Node;
