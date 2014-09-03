@@ -1,5 +1,6 @@
 package xeo.api.base.impl;
 
+import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -29,10 +30,10 @@ import xeo.api.base.exceptions.XEOUnknownBouiException;
 
 public class XEOScopeImpl extends XEOScope  {
 	
-	private static Map<boPoolable,Map<Long,XEOModelBase>> 			MODELS_LOADED 	= 
+	private Map<boPoolable,Map<Long,XEOModelBase>> 			MODELS_LOADED 	= 
 			new WeakHashMap<boPoolable, Map<Long,XEOModelBase>>();
 	
-	private static Map<boPoolable,Map<Class<?>,XEOModelAbstractFactory<?>>> MODELS_FACTORIES = 
+	private Map<boPoolable,Map<Class<?>,XEOModelAbstractFactory<?>>> MODELS_FACTORIES = 
 			new WeakHashMap<boPoolable, Map<Class<?>,XEOModelAbstractFactory<?>>>();
 	
 	private boThread 		oBoThread;
@@ -45,8 +46,11 @@ public class XEOScopeImpl extends XEOScope  {
 	private boolean			closed = false;
 	private boolean			wrapper = false;
 	
-	private StackTraceElement[] createIn = (new Throwable()).getStackTrace();
+	private int         	readyToUse = 0;
 	
+	private WeakReference<EboContextWrapper>  lastEboContext;
+	
+	private StackTraceElement[] createIn = (new Throwable()).getStackTrace();
 	
 	protected XEOScopeImpl( XEOSessionImpl session ) {
 		this.session = session;
@@ -60,13 +64,16 @@ public class XEOScopeImpl extends XEOScope  {
 	
 	public EboContext getEboContext() {
 		checkClosed();
-		return session.getEboContext();
+		
+		EboContext ctx = session.getEboContext();
+		if( readyToUse == 1 ) {
+			if( this.lastEboContext == null || this.lastEboContext.get() == null || this.lastEboContext.get().unWrap() != ctx  ) {
+				this.lastEboContext = new WeakReference<EboContextWrapper>( new EboContextWrapper( this.poolable.poolOwner.poolUniqueId() , ctx ) );
+			}
+			return lastEboContext.get();
+		}
+		return ctx;
 	}
-	
-	public void setEboContext( EboContext context ) {
-		this.poolable.setEboContext( context );
-	}
-
 	
 	protected Map<Long,XEOModelBase> getLoadModelsMap() {
 		Map<Long,XEOModelBase> modelsLoaded = MODELS_LOADED.get( this.poolable.poolOwner );
@@ -135,12 +142,12 @@ public class XEOScopeImpl extends XEOScope  {
 		        boPoolManager   boPoolMgr    = boMemArchive.getPoolManager();
 		
 		        String sLastPoolOwner = oEboContext.getPreferredPoolObjectOwner();
-		        try {
-					oEboContext.setPreferredPoolObjectOwner( poolable.poolOwner.poolUniqueId() );
+		        //try {
+				//	oEboContext.setPreferredPoolObjectOwner( poolable.poolOwner.poolUniqueId() );
 					boPoolMgr.realeaseAllObjects( poolable.poolOwner.poolUniqueId() );
-				} finally {
-		        	oEboContext.setPreferredPoolObjectOwner( sLastPoolOwner );
-				}
+				//} finally {
+		        //	oEboContext.setPreferredPoolObjectOwner( sLastPoolOwner );
+				//}
 	        }
 		}
 		release();
@@ -360,7 +367,7 @@ public class XEOScopeImpl extends XEOScope  {
 		finally {
 			eboContext.setPreferredPoolObjectOwner( lastOwner );
 		}
-		
+		this.lastEboContext = null;
 	}
 	
 	
@@ -394,7 +401,7 @@ public class XEOScopeImpl extends XEOScope  {
 		public EboContext getEboContext() {
 			return XEOScopeImpl.this.getEboContext();
 		}
-
+		
 		@Override
 		public boThread getThread() {
 	        if( oBoThread == null )
@@ -424,6 +431,10 @@ public class XEOScopeImpl extends XEOScope  {
 			return XEOScopeImpl.this;
 		}
 		
+	}
+	
+	protected void setReadyToUse( int value ) {
+		this.readyToUse = 1;
 	}
 	
 }

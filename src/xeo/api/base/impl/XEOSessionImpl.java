@@ -111,11 +111,14 @@ public class XEOSessionImpl extends boPoolable implements XEOSession, boPoolOwne
 			        boPoolManager   boPoolMgr    = boMemArchive.getPoolManager();
 			
 			        XEOScopeImpl    scope = new XEOScopeImpl( this );
+			        
 			        oEboContext.setPreferredPoolObjectOwner( this.poolOwner.poolUniqueId() );
-			        scope.setEboContext( oEboContext );
 			        boPoolMgr.putObject( scope.getPoolable(), new Object[] { this.poolOwner.poolUniqueId() });
 			        scope.getPoolable().poolSetStateFull( this.poolOwner.poolUniqueId() );
 			        addScopeToRequest( oEboContext , scope );
+			        
+			        scope.setReadyToUse( 1 );
+			        
 			        return scope;
 	        	}
 	        	finally {

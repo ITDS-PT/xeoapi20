@@ -1,5 +1,6 @@
 package xeo.api.base.impl;
 
+import java.lang.ref.WeakReference;
 import java.util.Hashtable;
 import java.util.Map;
 
@@ -12,34 +13,34 @@ import xeo.api.base.XEOThreadLocalScope;
 
 public class XEOScopeEboContextWrapper extends XEOScopeImpl {
 	
-	private EboContext 		eboContext;
+	private WeakReference<EboContext> eboContext;
 	private XEOScopeImpl  	scope;
 	
 	private Hashtable<String, XEOScopeImpl> contextOwners = new Hashtable<String, XEOScopeImpl>(); 
 	
 	protected XEOScopeEboContextWrapper( XEOSessionImpl session, boPoolable owner, EboContext context ) {
 		super( session , owner);
-		this.eboContext = context;
+		this.eboContext = new WeakReference<EboContext>( context );
 	}
 	
 	private void validateScope() {
-		
-		this.scope  = contextOwners.get(  eboContext.getPreferredPoolObjectOwner() );
+		EboContext ctx = eboContext.get();
+		this.scope  = contextOwners.get(  ctx.getPreferredPoolObjectOwner() );
 		if( this.scope == null ) {
 			
 			boPoolable poolOwner;
 			
-			if ( eboContext.poolUniqueId().equals( eboContext.getPreferredPoolObjectOwner() ) ) {
-				poolOwner = eboContext;
+			if ( ctx.poolUniqueId().equals( ctx.getPreferredPoolObjectOwner() ) ) {
+				poolOwner = ctx;
 			}
 			else {
-				poolOwner =  eboContext.getBoSession().getApplication().getMemoryArchive().getPoolManager()
-						.getObjectById( eboContext.getPreferredPoolObjectOwner() );
+				poolOwner =  ctx.getBoSession().getApplication().getMemoryArchive().getPoolManager()
+						.getObjectById( ctx.getPreferredPoolObjectOwner() );
 				
 				
 				if( poolOwner == null ) {
 					throw new IllegalStateException( 
-						String.format("Preferred Owner %s no longer exists. Viewer/Transaction already closed or remove from pool!", eboContext.getPreferredPoolObjectOwner() ) 
+						String.format("Preferred Owner %s no longer exists. Viewer/Transaction already closed or remove from pool!", ctx.getPreferredPoolObjectOwner() ) 
 					);
 				}
 			}
@@ -49,10 +50,10 @@ public class XEOScopeEboContextWrapper extends XEOScopeImpl {
 			}
 			else {
 				this.scope = new XEOScopeImpl( (XEOSessionImpl)
-						XEOApplication.getInstance().wrapSession( eboContext.getBoSession() ), poolOwner 
+						XEOApplication.getInstance().wrapSession( ctx.getBoSession() ), poolOwner 
 				);
 			}
-			contextOwners.put(eboContext.getPreferredPoolObjectOwner(),  this.scope );
+			contextOwners.put(ctx.getPreferredPoolObjectOwner(),  this.scope );
 			
 		}
 	}
@@ -111,13 +112,7 @@ public class XEOScopeEboContextWrapper extends XEOScopeImpl {
 	
 	@Override
 	public EboContext getEboContext() {
-		return this.eboContext;
-	}
-	
-	@Override
-	public void setEboContext(EboContext context) {
-		validateScope();
-		scope.setEboContext(context);
+		return this.eboContext.get();
 	}
 	
 	public BoObjectFactory getBoManager() {

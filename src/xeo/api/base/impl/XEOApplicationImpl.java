@@ -19,7 +19,7 @@ import xeo.api.base.impl.XEOScopeImpl.XEOScopePoolable;
 public class XEOApplicationImpl extends XEOApplication {
 
 	
-	private static final WeakHashMap<EboContext, XEOScope> wrappedScopes = new WeakHashMap<EboContext, XEOScope>();
+	//private static final WeakHashMap<EboContext, XEOScope> wrappedScopes = new WeakHashMap<EboContext, XEOScope>();
 	
 	boApplication boapplication;
 	
@@ -55,7 +55,7 @@ public class XEOApplicationImpl extends XEOApplication {
 			return ((XEOScopePoolable)poolOwner).getScope();
 		}
 		else {
-			XEOScope scope = wrappedScopes.get( eboContext );
+			XEOScope scope = null; //wrappedScopes.get( eboContext );
 			if( scope == null ) {
 				synchronized(XEOApplication.class) {
 					scope = new XEOScopeEboContextWrapper(
@@ -63,7 +63,7 @@ public class XEOApplicationImpl extends XEOApplication {
 							poolOwner==null?eboContext:poolOwner, 
 							eboContext
 					);
-					wrappedScopes.put(eboContext, scope );
+					//wrappedScopes.put(eboContext, scope );
 				}
 			}
 			return scope;

@@ -13,6 +13,8 @@ public class XEOModelGeneratorForLocal {
 		// Public java classes (visible and modifiable by the user)
 		modelGenerator.setPublicJavaPackage( "xeo.models" );
 		
+		modelGenerator.setSourceEncoding("UTF-8");
+		
 		// Path of the output of the generated files
 		
 		modelGenerator.setSourceInternalOutputDir( "/Users/jcarreira/Work/xeo/workspace/xeoapi20_tests_app/src-internal" );
