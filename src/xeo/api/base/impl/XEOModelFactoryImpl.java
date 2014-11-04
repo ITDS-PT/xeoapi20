@@ -222,6 +222,19 @@ public abstract class XEOModelFactoryImpl<T extends XEOModelBase> extends XEOMod
 		return new ListBoObjectImpl<T>( list , scope);
 	}
 	
+	@Override
+	public T uniqueResult(String boqlWhere, Object ...args ) {
+		XEOCollection<T> list = (XEOCollection<T>) listBuilder( boqlWhere ).args( args ).execute();  
+		if( list.size() > 0 ) {
+			return list.iterator().next();
+		}
+		return null;
+	}
+	
+	@Override
+	public T uniqueResult(String boqlWhere) {
+		return uniqueResult( boqlWhere, (Object)null );
+	}
 
 	@Override
 	public XEOCollection<T> list(String boqlWhere, Object...args) {
