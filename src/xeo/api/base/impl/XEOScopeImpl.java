@@ -341,7 +341,6 @@ public class XEOScopeImpl extends XEOScope  {
 	
 	
 	public XEOSessionImpl getSession() {
-		checkClosed();
 		return session;
 	}
 

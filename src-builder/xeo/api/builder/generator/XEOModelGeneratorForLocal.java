@@ -17,18 +17,18 @@ public class XEOModelGeneratorForLocal {
 		
 		// Path of the output of the generated files
 		
-		modelGenerator.setSourceInternalOutputDir( "/Users/jcarreira/Work/xeo/workspace/xeoapi20_tests_app/src-internal" );
-		modelGenerator.setSourcePublicOutputDir( "/Users/jcarreira/Work/xeo/workspace/xeoapi20_tests_app/src-xeogen" );
+		modelGenerator.setSourceInternalOutputDir( "/Users/jcarreira/Work/workspace-luna/xeoapi20_tests_app/src-internal" );
+		modelGenerator.setSourcePublicOutputDir( "/Users/jcarreira/Work/workspace-luna/xeoapi20_tests_app/src-xeogen" );
+//
+		// Path to xeoHome
+		modelGenerator.setXEOHome( "/Users/jcarreira/Work/workspace-luna/xeoapi20_tests_app/" );
+		
+		
+//		modelGenerator.setSourceInternalOutputDir( "/Users/jcarreira/Work/workspace-luna/SGTECV/.src-internal" );
+//		modelGenerator.setSourcePublicOutputDir( "/Users/jcarreira/Work/workspace-luna/SGTECV/src-xeogen" );
 
 		// Path to xeoHome
-		modelGenerator.setXEOHome( "/Users/jcarreira/Work/xeo/workspace/xeoapi20_tests_app/" );
-		
-		
-//		modelGenerator.setSourceInternalOutputDir( "/Users/jcarreira/Work/xeo/workspace/checkin/src-internal" );
-//		modelGenerator.setSourcePublicOutputDir( "/Users/jcarreira/Work/xeo/workspace/checkin/src-xeogen" );
-//
-//		// Path to xeoHome
-//		modelGenerator.setXEOHome( "/Users/jcarreira/Work/xeo/workspace/checkin/" );
+//		modelGenerator.setXEOHome( "/Users/jcarreira/Work/xeo/workspace/SGTECV/" );
 		
 		
 		// Generate the source files

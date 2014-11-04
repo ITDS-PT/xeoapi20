@@ -1016,7 +1016,7 @@ public class XEOModelDefBuilder {
 		NodeList list;
 		list = ((XMLElement)node).getElementsByTagName("description");
 		if( list.getLength() > 0 ) {
-			description = list.item( 0 ).getTextContent();
+			description = ((XMLElement)list.item( 0 )).getTextContent();
 		}
 		if( description == null ) {
 			description  = "";

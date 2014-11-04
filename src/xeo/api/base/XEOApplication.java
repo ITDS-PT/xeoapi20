@@ -108,4 +108,12 @@ public abstract class XEOApplication {
 		return (T)XEOApplicationImpl.wrapObject( boui );
 	}
 	
+	public static <T extends XEOModelBase> XEOQLBuilder<T> ql( Class<T> modelclass, String ql ) {
+		return XEOApplicationImpl.ql( modelclass, ql );
+	}
+	
+	public static <T extends XEOModelBase> XEOQLBuilder<T> ql( XEOScope scope, Class<T> modelclass, String ql ) {
+		return XEOApplicationImpl.ql( scope, modelclass, ql );
+	}
+	
 }

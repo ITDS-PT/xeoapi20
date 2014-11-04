@@ -66,9 +66,7 @@ public class XEOQLPreProcessor {
 						int idx = 0;
 						try {
 							idx = Integer.parseInt( content.toString() );
-							if( idx >= this.outParametersArray.size() ) {
-								questionCount++;
-							}
+							questionCount++;
 							this.outParametersArray.add( this.inParametersArray[ idx ] );
 							result.append( '?' );
 						}
@@ -140,7 +138,7 @@ public class XEOQLPreProcessor {
 	}
 	
 	public Object[] getProcessedParameters() {
-		return this.outParametersArray.toArray();
+		return this.outParametersArray != null?outParametersArray.toArray():null;
 	}
 	
 

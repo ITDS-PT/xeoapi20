@@ -1,7 +1,5 @@
 package xeo.api.base.impl;
 
-import java.util.WeakHashMap;
-
 import netgest.bo.runtime.EboContext;
 import netgest.bo.runtime.boObject;
 import netgest.bo.system.boApplication;
@@ -12,6 +10,8 @@ import netgest.bo.transaction.XTransaction;
 import netgest.bo.transaction.XTransactionManager;
 import xeo.api.base.XEOApplication;
 import xeo.api.base.XEOModelBase;
+import xeo.api.base.XEOQLBuilder;
+import xeo.api.base.XEOQLList;
 import xeo.api.base.XEOScope;
 import xeo.api.base.XEOSession;
 import xeo.api.base.impl.XEOScopeImpl.XEOScopePoolable;
@@ -81,5 +81,12 @@ public class XEOApplicationImpl extends XEOApplication {
 		return XEOModelFactoryImpl.wrap( new XEOModelRefereceDebugInfo(),(XEOScopeImpl)scope, boui );
 	}
 	
-
+	public static <T extends XEOModelBase> XEOQLBuilder<T> ql( Class<T> modelclass, String ql ) {
+		return new XEOQLBuilderImpl<T>( (XEOScopeImpl)XEOScope.getCurrentScope(),  ql );
+	}
+	
+	public static <T extends XEOModelBase> XEOQLBuilder<T> ql( XEOScope scope, Class<T> modelclass, String ql ) {
+		return new XEOQLBuilderImpl<T>( (XEOScopeImpl)scope,  ql );
+	}
+	
 }
